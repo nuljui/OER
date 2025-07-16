@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OGA Platform - Ownable Game Assets</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600&display=swap');
+    
+    * { 
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box; 
+    }
+    
+    :root {
+      --neon-green: #00ff41;
+      --dark-green: #00cc33;
+      --bg-dark: #0a0a0a;
+      --bg-darker: #050505;
+      --text-light: #ffffff;
+      --text-dim: #888;
+      --accent-purple: #9945ff;
+      --accent-blue: #14f195;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-light);
+      overflow-x: hidden;
+      position: relative;
+    }
+    
+    /* Animated Background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 50%, rgba(0, 255, 65, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(153, 69, 255, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 40% 20%, rgba(20, 241, 149, 0.08) 0%, transparent 50%);
+      animation: backgroundPulse 15s ease-in-out infinite;
+      z-index: -1;
+    }
+    
+    @keyframes backgroundPulse {
+      0%, 100% { opacity: 0.5; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(1.1); }
+    }
+    
+    /* Header Navigation */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: rgba(10, 10, 10, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(0, 255, 65, 0.3);
+      z-index: 1000;
+      padding: 1rem 2rem;
+      animation: slideDown 0.5s ease-out;
+    }
+    
+    @keyframes slideDown {
+      from { transform: translateY(-100%); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .logo {
+      font-family: 'Orbitron', monospace;
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--neon-green);
+      text-decoration: none;
+      text-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
+      transition: all 0.3s ease;
+    }
+    
+    .logo:hover {
+      text-shadow: 0 0 30px rgba(0, 255, 65, 0.8);
+      transform: scale(1.05);
+    }
+    
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
+    
+    .nav-link {
+      color: var(--text-light);
+      text-decoration: none;
+      font-weight: 500;
+      position: relative;
+      transition: color 0.3s ease;
+    }
+    
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--neon-green), var(--accent-blue));
+      transition: width 0.3s ease;
+    }
+    
+    .nav-link:hover {
+      color: var(--neon-green);
+    }
+    
+    .nav-link:hover::after {
+      width: 100%;
+    }
+    
+    /* Page Styles */
+    .page { 
+      display: none; 
+      min-height: 100vh; 
+      padding: 6rem 2rem 4rem;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    
+    .page.active { 
+      display: block;
+      animation: fadeInUp 0.6s ease forwards;
+    }
+    
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .center { 
+      text-align: center; 
+    }
+    
+    /* Typography */
+    h1, h2, h3 {
+      font-family: 'Orbitron', monospace;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, var(--neon-green), var(--accent-blue));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    h1 {
+      font-size: 3.5rem;
+      animation: titleGlow 3s ease-in-out infinite;
+    }
+    
+    @keyframes titleGlow {
+      0%, 100% { filter: brightness(1) drop-shadow(0 0 20px rgba(0, 255, 65, 0.5)); }
+      50% { filter: brightness(1.2) drop-shadow(0 0 40px rgba(0, 255, 65, 0.8)); }
+    }
+    
+    /* Green Button */
+    .green-btn {
+      background: linear-gradient(135deg, var(--dark-green), var(--neon-green));
+      color: black;
+      padding: 1rem 3rem;
+      border: none;
+      font-weight: bold;
+      font-family: 'Orbitron', monospace;
+      cursor: pointer;
+      margin-top: 2rem;
+      position: relative;
+      overflow: hidden;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 20px rgba(0, 255, 65, 0.3);
+    }
+    
+    .green-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 30px rgba(0, 255, 65, 0.5);
+    }
+    
+    .green-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: left 0.5s ease;
+    }
+    
+    .green-btn:hover::before {
+      left: 100%;
+    }
+    
+    /* Form Styles */
+    .form-section { 
+      max-width: 400px; 
+      margin: 0 auto;
+      animation: formSlide 0.8s ease-out;
+    }
+    
+    @keyframes formSlide {
+      from { opacity: 0; transform: translateX(-30px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    
+    label {
+      display: block;
+      margin-top: 1.5rem;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+    }
+    
+    input, select {
+      display: block;
+      width: 100%;
+      padding: 1rem;
+      margin: 0.5rem 0;
+      background: rgba(255, 255, 255, 0.05);
+      color: white;
+      border: 1px solid rgba(0, 255, 65, 0.3);
+      transition: all 0.3s ease;
+      font-size: 1rem;
+    }
+    
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--neon-green);
+      box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+      background: rgba(255, 255, 255, 0.08);
+    }
+    
+    /* Profile Styles */
+    .profile { 
+      display: flex; 
+      justify-content: space-between; 
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      gap: 3rem;
+    }
+    
+    .column { 
+      flex: 1; 
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(0, 255, 65, 0.2);
+      padding: 2rem;
+      border-radius: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .column::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(45deg, var(--neon-green), transparent, var(--accent-purple));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: -1;
+      border-radius: 10px;
+    }
+    
+    .column:hover::before {
+      opacity: 0.5;
+      animation: borderRotate 3s linear infinite;
+    }
+    
+    @keyframes borderRotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* Progress Bars */
+    .bar-container {
+      margin: 1rem 0;
+    }
+    
+    .bar-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+      color: var(--text-dim);
+    }
+    
+    .bar { 
+      height: 8px; 
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-purple), var(--neon-green));
+      border-radius: 4px;
+      position: relative;
+      animation: fillBar 1.5s ease-out forwards;
+      box-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+    }
+    
+    @keyframes fillBar {
+      from { width: 0; }
+    }
+    
+    .bar-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+      animation: shimmer 2s infinite;
+    }
+    
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    
+    /* Friends & Trophies */
+    .friends, .trophies { 
+      margin-top: 2rem;
+    }
+    
+    .friend-icons {
+      display: flex;
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    
+    .friend-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      animation: bounce 2s ease-in-out infinite;
+      animation-delay: calc(var(--i) * 0.1s);
+    }
+    
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    /* Links */
+    a { 
+      color: var(--neon-green); 
+      text-decoration: none;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+    
+    a:hover {
+      text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+    }
+    
+    /* Loading Animation */
+    .loading-dots {
+      display: inline-block;
+    }
+    
+    .loading-dots::after {
+      content: '...';
+      animation: loadingDots 1.5s infinite;
+    }
+    
+    @keyframes loadingDots {
+      0% { content: '.'; }
+      33% { content: '..'; }
+      66% { content: '...'; }
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      h1 { font-size: 2.5rem; }
+      .profile { flex-direction: column; }
+      .nav-links { gap: 1rem; }
+      header { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header Navigation -->
+  <header>
+    <nav>
+      <a href="#" class="logo" onclick="switchPage('landing')">OGA™</a>
+      <div class="nav-links">
+        <a href="#" class="nav-link" onclick="switchPage('landing')">Home</a>
+        <a href="#" class="nav-link" onclick="switchPage('register')">Register</a>
+        <a href="#" class="nav-link" onclick="switchPage('profile')">Profile</a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Landing Page -->
+  <div class="page active" id="landing">
+    <div class="center">
+      <h1>What are OGAs?</h1>
+      <em style="color: var(--text-dim); font-size: 1.2rem;">Your OGA Collection</em>
+      <p style="margin: 2rem auto; max-width: 600px; font-size: 1.1rem; line-height: 1.8; color: var(--text-dim);">
+        OGA™ stands for Ownable Game Assets™. Soon you'll bring your achievements & inventory into other ecosystems. Show off your progress across games & platforms.
+      </p>
+      <button class="green-btn" onclick="switchPage('register')">
+        <span class="loading-dots">LOADING</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Registration Page -->
+  <div class="page" id="register">
+    <div class="center">
+      <h2>Collect Your Game Information in One Spot</h2>
+      <p style="margin-bottom: 2rem;"><a href="#">Already Registered? Log in here.</a></p>
+      <div class="form-section">
+        <label>Name</label>
+        <input type="text" placeholder="Jiara Martins">
+        
+        <label>PlayStation ID</label>
+        <input type="text" placeholder="Enter your PSN ID">
+        
+        <label>Xbox ID</label>
+        <input type="text" placeholder="Enter your Xbox Gamertag">
+        
+        <label>Date of Birth</label>
+        <select>
+          <option>Select</option>
+          <option>January</option>
+          <option>February</option>
+          <option>March</option>
+        </select>
+        
+        <button class="green-btn" onclick="switchPage('profile')">CONNECT</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Page -->
+  <div class="page" id="profile">
+    <h2 class="center" style="margin-bottom: 3rem;">Player Dashboard</h2>
+    <div class="profile">
+      <div class="column">
+        <h3>Results</h3>
+        <p style="font-size: 1.2rem; margin: 1rem 0;">[USER NAME]</p>
+        
+        <div class="trophies">
+          <h4>Trophies</h4>
+          <div class="bar-container">
+            <div class="bar-label">
+              <span>Platinum</span>
+              <span>12</span>
+            </div>
+            <div class="bar">
+              <div class="bar-fill" style="width: 30%;"></div>
+            </div>
+          </div>
+          
+          <div class="bar-container">
+            <div class="bar-label">
+              <span>Gold</span>
+              <span>48</span>
+            </div>
+            <div class="bar">
+              <div class="bar-fill" style="width: 80%;"></div>
+            </div>
+          </div>
+          
+          <div class="bar-container">
+            <div class="bar-label">
+              <span>Silver</span>
+              <span>156</span>
+            </div>
+            <div class="bar">
+              <div class="bar-fill" style="width: 60%;"></div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="friends">
+          <h4>Friends Online</h4>
+          <div class="friend-icons">
+            <div class="friend-icon" style="--i: 0;">A</div>
+            <div class="friend-icon" style="--i: 1;">M</div>
+            <div class="friend-icon" style="--i: 2;">K</div>
+          </div>
+          
+          <div class="bar-container">
+            <div class="bar-label">
+              <span>Activity Score</span>
+              <span>2,847</span>
+            </div>
+            <div class="bar">
+              <div class="bar-fill" style="width: 65%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="column center">
+        <h3>Create an OGA Account</h3>
+        <em style="color: var(--accent-blue); display: block; margin: 1rem 0;">(Early Signup)</em>
+        <p style="color: var(--text-dim); line-height: 1.6; margin: 2rem 0;">
+          Join the revolution of true game ownership. Your achievements, your assets, your legacy.
+        </p>
+        <button class="green-btn">SIGN UP</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchPage(id) {
+      document.querySelectorAll('.page').forEach(p => {
+        p.classList.remove('active');
+      });
+      
+      setTimeout(() => {
+        document.getElementById(id).classList.add('active');
+      }, 100);
+    }
+    
+    // Add some interactive elements
+    document.addEventListener('DOMContentLoaded', () => {
+      // Animate progress bars on profile page load
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.style.animation = 'fillBar 1.5s ease-out forwards';
+          }
+        });
+      });
+      
+      document.querySelectorAll('.bar-fill').forEach(bar => {
+        observer.observe(bar);
+      });
+    });
+  </script>
+</body>
+</html>

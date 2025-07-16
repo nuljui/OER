@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OGA Platform</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #000;
+      color: #fff;
+    }
+    .page { display: none; min-height: 100vh; padding: 4rem 2rem; }
+    .active { display: block; }
+    .center { text-align: center; }
+    .green-btn {
+      background-color: limegreen;
+      color: black;
+      padding: 1rem 2rem;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 2rem;
+    }
+    input, select {
+      display: block;
+      width: 100%;
+      padding: 0.75rem;
+      margin: 1rem 0;
+      background: #000;
+      color: white;
+      border: 1px solid #666;
+    }
+    .form-section { max-width: 400px; margin: 0 auto; }
+    .profile { display: flex; justify-content: space-between; padding: 2rem; }
+    .column { flex: 1; margin: 1rem; }
+    .bar { height: 10px; background: #ccc; margin: 0.5rem 0; }
+    .friends, .trophies { margin-top: 2rem; }
+    a { color: limegreen; text-decoration: none; }
+  </style>
+</head>
+<body>
+
+  <!-- Landing Page -->
+  <div class="page active" id="landing">
+    <div class="center">
+      <h1>What are OGAs?</h1>
+      <em>Your OGA Collection</em>
+      <p style="margin: 2rem auto; max-width: 600px;">
+        OGA™ stands for Ownable Game Assets™. Soon you’ll bring your achievements & inventory into other ecosystems. Show off your progress across games & platforms.
+      </p>
+      <button class="green-btn" onclick="switchPage('register')">... LOADING</button>
+    </div>
+  </div>
+
+  <!-- Registration Page -->
+  <div class="page" id="register">
+    <div class="center">
+      <h2>Collect Your Game Information in Spot</h2>
+      <p><a href="#">Already Registered? Log in here.</a></p>
+      <div class="form-section">
+        <label>Name</label>
+        <input type="text" placeholder="Jiara Martins">
+        <label>PlayStation ID</label>
+        <input type="text">
+        <label>Xbox ID</label>
+        <input type="text">
+        <label>Date of Birth</label>
+        <select><option>Select</option></select>
+        <button class="green-btn" onclick="switchPage('profile')">CONNECT</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Page -->
+  <div class="page" id="profile">
+    <div class="profile">
+      <div class="column">
+        <h3>Results</h3>
+        <p>[USER NAME]</p>
+        <div class="trophies">
+          <h4>Trophies</h4>
+          <div class="bar"></div>
+          <div class="bar" style="width: 80%;"></div>
+          <div class="bar" style="width: 60%;"></div>
+        </div>
+        <div class="friends">
+          <h4>Friends</h4>
+          <p>● ● ●</p>
+          <div class="bar" style="width: 60%;"></div>
+          <div class="bar" style="width: 80%;"></div>
+        </div>
+      </div>
+      <div class="column center">
+        <h3>Create an OGA Account</h3>
+        <em>(Early Signup)</em>
+        <button class="green-btn">SIGN UP</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchPage(id) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+  </script>
+</body>
+</html>
