@@ -1,3 +1,2 @@
 # OER
-
-Open Educational Resources project 
+One earth rising poc project
