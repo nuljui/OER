@@ -1249,44 +1249,6 @@
       return validPattern.test(gamertag);
     }
 
-    // Fallback Xbox data for demo when API is blocked by CORS
-    function getFallbackXboxData(gamertag) {
-      const fallbackData = {
-        'majornelson': {
-          gamertag: 'Major Nelson',
-          xuid: '2584878536129841',
-          gamerscore: 142991,
-          accountTier: 'Gold',
-          gamerPic: 'https://images-eds-ssl.xboxlive.com/image?url=MSVnmBUo_fHjbLYMjAEUQ7Ac2lymM5VGDhL8xC4dN7M-JkydOlN2LqInFHczwGzRQKd7Ic7tPyLb0F8-',
-          totalGames: 1000,
-          totalAchievements: 3652,
-          perfectGames: 24,
-          topGames: [
-            { name: 'What Remains of Edith Finch', completion: 100, gamerscore: 1000, totalGamerscore: 1000 },
-            { name: 'The Turing Test', completion: 100, gamerscore: 1000, totalGamerscore: 1000 },
-            { name: 'INSIDE', completion: 100, gamerscore: 1000, totalGamerscore: 1000 },
-            { name: 'Pneuma: Breath of Life', completion: 100, gamerscore: 1000, totalGamerscore: 1000 }
-          ]
-        },
-        'chief123': {
-          gamertag: 'Chief 123',
-          xuid: '2533274872832966',
-          gamerscore: 400,
-          accountTier: 'Silver',
-          gamerPic: 'https://images-eds-ssl.xboxlive.com/image?url=7OTVnZUMVj4OV2zUUGecWvn3U00nQQLfK7_kwpANogjch5eSN1WWBGnNpK7ZxeCxuPAANFM0MEKMonYZU2gI__3CCKvthu40GQMrmBxSdGQ-',
-          totalGames: 22,
-          totalAchievements: 22,
-          perfectGames: 4,
-          topGames: [
-            { name: 'Halo: Reach', completion: 2, gamerscore: 35, totalGamerscore: 1700 },
-            { name: 'Minecraft: Xbox 360 Edition', completion: 5, gamerscore: 120, totalGamerscore: 2195 },
-            { name: 'Halo: Combat Evolved Anniversary', completion: 7, gamerscore: 70, totalGamerscore: 1000 }
-          ]
-        }
-      };
-      
-      return fallbackData[gamertag.toLowerCase().replace(/\s+/g, '')] || null;
-    }
 
     // Real Stability Blockchain Integration with proper ABIs
     async function callStabilityContract(method, params = []) {
@@ -1798,20 +1760,13 @@
             throw new Error('Xbox gamertag not found through API.');
           }
         } catch (error) {
-          // Check if we have fallback demo data for this gamertag
-          const fallbackData = getFallbackXboxData(xboxId);
-          if (fallbackData) {
-            validationMessage = '✅ Xbox gamertag verified!';
-            showStatus('registerStatus', validationMessage + ' Creating blockchain profile...', 'success');
+          // Surface API errors without falling back to demo data
+          if (error.message.includes('CORS') || error.message.includes('blocked') || error.message.includes('Failed to fetch')) {
+            validationMessage = '⚠️ Xbox API blocked by browser (normal in dev). Proceeding...';
+            showStatus('registerStatus', validationMessage + ' Creating blockchain profile...', 'warning');
           } else {
-            // For any other gamertag, allow it to proceed with a warning about CORS
-            if (error.message.includes('CORS') || error.message.includes('blocked') || error.message.includes('Failed to fetch')) {
-              validationMessage = '⚠️ Xbox API blocked by browser (normal in dev). Proceeding...';
-              showStatus('registerStatus', validationMessage + ' Creating blockchain profile...', 'warning');
-            } else {
-              validationMessage = '⚠️ Could not verify gamertag. Proceeding...';
-              showStatus('registerStatus', validationMessage + ' Creating blockchain profile...', 'warning');
-            }
+            validationMessage = '⚠️ Could not verify gamertag. Proceeding...';
+            showStatus('registerStatus', validationMessage + ' Creating blockchain profile...', 'warning');
           }
         }
         
@@ -1868,74 +1823,26 @@
         return;
       }
 
-      // Test gamertag to XUID mapping for demo/testing purposes
-      const testGamertagMappings = {
-        'ForzaTester22': '2533274801175621',  // Maps to "Squirrel Regis"
-        'MockGamer123': '2533274801175621',   // Maps to "Squirrel Regis"  
-        'Chief123': '2533274801175621',       // Maps to "Squirrel Regis"
-        'TestUser002': '2533274824374524',    // Maps to "TestUser001" (from previous API test)
-        'DemoPlayer': '2533274801175621'      // Maps to "Squirrel Regis"
-      };
-
       try {
         let player, currentXuid;
-        
-        // Check if this is a test gamertag that should map to a real XUID
-        if (testGamertagMappings[gamertag]) {
-          console.log(`🎯 Test gamertag "${gamertag}" mapped to XUID: ${testGamertagMappings[gamertag]}`);
-          
-          // Get profile data directly using the mapped XUID
-          const profileResult = await makeXboxRequest(`/account/${testGamertagMappings[gamertag]}`);
-          
-          if (profileResult.profileUsers && profileResult.profileUsers.length > 0) {
-            const profileUser = profileResult.profileUsers[0];
-            
-            // Extract data from the profile structure
-            const settings = profileUser.settings;
-            const getSettingValue = (id) => settings.find(s => s.id === id)?.value || '';
-            
-            // Create a player object compatible with search API format
-            player = {
-              xuid: profileUser.id,
-              gamertag: getSettingValue('Gamertag'),
-              gamerScore: parseInt(getSettingValue('Gamerscore')) || 0,
-              displayPicRaw: getSettingValue('GameDisplayPicRaw'),
-              detail: {
-                accountTier: getSettingValue('AccountTier'),
-                bio: getSettingValue('Bio'),
-                location: getSettingValue('Location')
-              }
-            };
-            
-            currentXuid = player.xuid;
-            console.log(`✅ Found mapped Xbox user for "${gamertag}":`, {
-              realGamertag: player.gamertag,
-              xuid: player.xuid,
-              gamerScore: player.gamerScore
-            });
-          } else {
-            throw new Error('Mapped XUID not found');
-          }
-          
-        } else {
-          // Step 1: Get real Xbox user data from search API (normal flow)
-          console.log(`🔍 Searching for Xbox user: ${gamertag}`);
-          const searchResult = await makeXboxRequest(`/search/${encodeURIComponent(gamertag)}`);
-          
-          if (!searchResult.people || searchResult.people.length === 0) {
-            throw new Error('Xbox gamertag not found through API');
-          }
-          
-          player = searchResult.people[0];
-          currentXuid = player.xuid;
-          
-          console.log(`✅ Found real Xbox user:`, {
-            gamertag: player.gamertag,
-            xuid: player.xuid,
-            gamerScore: player.gamerScore,
-            displayPicRaw: player.displayPicRaw
-          });
+
+        // Always query the Xbox API for the supplied gamertag
+        console.log(`🔍 Searching for Xbox user: ${gamertag}`);
+        const searchResult = await makeXboxRequest(`/search/${encodeURIComponent(gamertag)}`);
+
+        if (!searchResult.people || searchResult.people.length === 0) {
+          throw new Error('Xbox gamertag not found through API');
         }
+
+        player = searchResult.people[0];
+        currentXuid = player.xuid;
+
+        console.log(`✅ Found real Xbox user:`, {
+          gamertag: player.gamertag,
+          xuid: player.xuid,
+          gamerScore: player.gamerScore,
+          displayPicRaw: player.displayPicRaw
+        });
         
         // Step 2: Update profile with real Xbox data immediately
         updateBasicXboxProfile(player);
@@ -2020,18 +1927,7 @@
           setTimeout(() => hideStatus('profileStatus'), 5000);
           
         } else if (error.message.includes('Failed to fetch') || error.message.includes('CORS') || error.message.includes('backend service')) {
-          // Network/API issues - use fallback for MajorNelson, show API unavailable for others
-          if (gamertag.toLowerCase() === 'majornelson' || gamertag.toLowerCase().replace(/\s+/g, '') === 'majornelson') {
-            const fallbackData = getFallbackXboxData('majornelson');
-            if (fallbackData) {
-              console.log(`Using demo data for MajorNelson due to API issues`);
-              showStatus('profileStatus', '⚠️ Using demo data (Xbox API backend service issue)', 'info');
-              updateXboxProfileFromFallback(fallbackData);
-              return;
-            }
-          }
-          
-          // For other users when API is actually unavailable
+          // For any API outage, display unavailable status without demo data
           console.log(`Xbox API backend unavailable for ${gamertag} - showing profile without Xbox data`);
           document.getElementById('realGamertag').innerHTML = `${gamertag}`;
           document.getElementById('realGamerscore').textContent = '0';
@@ -2103,124 +1999,6 @@
       }
     }
 
-    // Update Xbox Profile from Fallback Data
-    function updateXboxProfileFromFallback(data) {
-      currentXuid = data.xuid;
-      
-      // Update profile header
-      document.getElementById('realGamertag').innerHTML = `${data.gamertag} ${data.gamerscore > 100000 ? '<span class="legendary-badge">Legend</span>' : ''}`;
-      document.getElementById('realGamerscore').textContent = data.gamerscore.toLocaleString();
-      document.getElementById('accountTier').textContent = `⭐ Xbox Live ${data.accountTier}`;
-      
-      // Update avatar
-      document.getElementById('gamerAvatar').textContent = getGamertagInitials(data.gamertag);
-      
-      // Show legend badge for high gamerscore
-      if (data.gamerscore > 100000) {
-        const badge = document.getElementById('gamingBadge');
-        if (badge) badge.style.display = 'inline';
-      }
-      
-      // Update statistics
-      document.getElementById('xboxTotalGames').textContent = data.totalGames.toLocaleString();
-      document.getElementById('xboxTotalAchievements').textContent = data.totalAchievements.toLocaleString();
-      document.getElementById('perfectGames').textContent = data.perfectGames;
-      document.getElementById('mintableAchievements').textContent = data.totalAchievements;
-      
-      const avgCompletion = data.topGames.reduce((sum, game) => sum + game.completion, 0) / data.topGames.length;
-      document.getElementById('xboxCompletionRate').textContent = Math.round(avgCompletion) + '%';
-      
-      const recentGames = Math.floor(data.totalGames * 0.1); // Estimate 10% recent
-      document.getElementById('xboxRecentlyPlayed').textContent = recentGames;
-      
-      // Update presence status
-      updateXboxOfflineStatus();
-      
-      // Display games
-      const gameLibrary = document.getElementById('xboxGameLibrary');
-      gameLibrary.innerHTML = '';
-      
-      data.topGames.forEach(game => {
-        const gameCard = createFallbackGameCard(game);
-        gameLibrary.appendChild(gameCard);
-      });
-      
-      // Update quick mint suggestions
-      updateQuickMintSuggestionsFromFallback(data.topGames);
-    }
-
-    // Create Game Card from Fallback Data
-    function createFallbackGameCard(game) {
-      const card = document.createElement('div');
-      card.className = 'game-card';
-      
-      const perfectBadge = game.completion === 100 ? '<span class="achievement-badge">PERFECT</span>' : '';
-      const progressClass = game.completion === 100 ? 'complete' : '';
-      
-      card.innerHTML = `
-        <div class="game-title">${game.name}${perfectBadge}</div>
-        <div class="game-progress">
-          <div class="progress-bar">
-            <div class="progress-fill ${progressClass}" style="width: ${game.completion}%"></div>
-          </div>
-          <div class="progress-text">
-            <span>${game.completion}% Complete</span>
-            <span>${game.gamerscore}G / ${game.totalGamerscore}G</span>
-          </div>
-        </div>
-      `;
-      
-      // Add click handler for quick minting
-      card.addEventListener('click', () => {
-        fillMintFormFromFallback(game);
-      });
-      
-      return card;
-    }
-
-    // Fill Mint Form from Fallback Data
-    function fillMintFormFromFallback(game) {
-      document.getElementById('trophyTitle').value = `${game.name} - ${game.completion === 100 ? 'Perfect Completion' : 'Achievement Progress'}`;
-      document.getElementById('trophyContext').value = `${currentGamertag}'s ${game.name} achievements`;
-      document.getElementById('trophyExtra').value = JSON.stringify({
-        game: game.name,
-        gamerscore: game.gamerscore,
-        totalGamerscore: game.totalGamerscore,
-        completion: `${game.completion}%`,
-        rarity: game.completion === 100 ? 'perfect' : 'progress',
-        player: currentGamertag
-      }, null, 2);
-    }
-
-    // Update Quick Mint Suggestions from Fallback
-    function updateQuickMintSuggestionsFromFallback(games) {
-      const suggestions = document.getElementById('quickMintSuggestions');
-      const perfectGames = games.filter(game => game.completion === 100);
-      
-      if (perfectGames.length > 0) {
-        suggestions.innerHTML = `
-          <div style="margin-bottom: 0.5rem;">
-            <strong style="color: var(--neon-green);">🏆 Perfect Games:</strong>
-          </div>
-          ${perfectGames.map(game => 
-            `<div style="cursor: pointer; padding: 0.3rem; background: rgba(0,255,65,0.1); border-radius: 4px; margin: 0.2rem 0;" onclick="fillMintFormFromFallback({name: '${game.name}', completion: ${game.completion}, gamerscore: ${game.gamerscore}, totalGamerscore: ${game.totalGamerscore}})">
-              ✨ ${game.name} (${game.gamerscore}G)
-            </div>`
-          ).join('')}
-        `;
-      } else {
-        suggestions.innerHTML = `
-          <div style="margin-bottom: 0.5rem;">
-            <strong style="color: var(--accent-blue);">🎮 Top Achievements:</strong>
-          </div>
-          ${games.slice(0, 3).map(game => 
-            `<div style="cursor: pointer; padding: 0.3rem; background: rgba(20,241,149,0.1); border-radius: 4px; margin: 0.2rem 0;" onclick="fillMintFormFromFallback({name: '${game.name}', completion: ${game.completion}, gamerscore: ${game.gamerscore}, totalGamerscore: ${game.totalGamerscore}})">
-              🎯 ${game.name} (${game.completion}% - ${game.gamerscore}G)
-            </div>`
-          ).join('')}
-        `;
-      }
-    }
 
     // Update Xbox Profile Display
     function updateXboxProfileDisplay(profileData) {
