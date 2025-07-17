@@ -1252,7 +1252,6 @@
     // Real Stability Blockchain Integration with proper ABIs
     async function callStabilityContract(method, params = []) {
       try {
-        console.log(`🔗 Calling ${method} on Stability blockchain with params:`, params);
         
         switch (method) {
           case 'register':
@@ -1260,7 +1259,6 @@
             
             // Check if THIS SPECIFIC Xbox gamertag already exists using new contract
             try {
-              console.log(`Checking if Xbox gamertag "${xboxId}" already exists...`);
               const existingUserId = await stabilityRead(
                 CONTRACT_ADDRESS, 
                 'getUserIdByXboxId',
@@ -1270,7 +1268,6 @@
               
               if (existingUserId && parseInt(existingUserId) > 0) {
                 // This specific Xbox gamertag exists, get the profile
-                console.log(`Xbox gamertag "${xboxId}" exists with User ID ${existingUserId}`);
                 const existingProfile = await stabilityRead(
                   CONTRACT_ADDRESS, 
                   'getProfile',
@@ -1288,7 +1285,6 @@
               }
             } catch (e) {
               // This Xbox gamertag doesn't exist, create new profile
-              console.log(`Xbox gamertag "${xboxId}" not found, creating new profile...`);
             }
             
             // Create new profile for this Xbox gamertag 
@@ -1444,7 +1440,6 @@
                 );
                 // The minted token should be nextTokenId - 1
                 tokenId = parseInt(nextTokenIdResult) - 1;
-                console.log(`🎯 Calculated tokenId: ${tokenId} (nextTokenId: ${nextTokenIdResult})`);
               } catch (e) {
                 console.warn('Could not determine tokenId:', e);
                 tokenId = 'unknown';
@@ -1461,7 +1456,6 @@
           case 'getTrophiesForUser':
             const [userId] = params;
             
-            console.log(`🏆 Getting trophies directly for Profile ID: ${userId}`);
             
             // Call the new smart contract function that gets trophies directly by user ID
             const trophyTokenIds = await stabilityRead(
@@ -1473,7 +1467,6 @@
             
             // Handle array response format
             const tokenIds = Array.isArray(trophyTokenIds) ? trophyTokenIds : [];
-            console.log(`✅ Found ${tokenIds.length} trophies directly for Profile ID ${userId}:`, tokenIds);
             
             // Get details for each trophy
             const trophies = [];
@@ -1484,7 +1477,6 @@
               }
               
               try {
-                console.log(`🔍 Getting trophy details for tokenId: ${tokenId}`);
                 const trophyData = await stabilityRead(
                   TROPHY_NFT_CONTRACT,
                   'getTrophyDetails',
@@ -1494,7 +1486,6 @@
                 
                 // Handle tuple array format: [linkedUserId, psContext, extra, createdAt]
                 if (Array.isArray(trophyData)) {
-                  console.log(`✅ Trophy ${tokenId} belongs to Profile ID ${trophyData[0]}`);
                   trophies.push({
                     tokenId: tokenId,
                     linkedUserId: trophyData[0],
@@ -1510,7 +1501,6 @@
               }
             }
             
-            console.log(`✅ Final result: ${trophies.length} trophies for Profile ID ${userId}`);
             return trophies;
             
           default:
@@ -1537,8 +1527,6 @@
       };
       
       try {
-        console.log(`📖 Reading from Stability blockchain:`, { method, args });
-        console.log(`📤 Sending payload:`, JSON.stringify(payload, null, 2));
         
         const response = await fetch(API_URL, {
           method: 'POST',
@@ -1549,11 +1537,8 @@
           mode: 'cors'
         });
         
-        console.log(`📊 Response status: ${response.status} ${response.statusText}`);
-        console.log(`📋 Response headers:`, [...response.headers.entries()]);
         
         const text = await response.text();
-        console.log(`📄 Raw response body:`, text);
         
         if (!response.ok) {
           console.error(`💥 Read request failed but let's see if we got data anyway...`);
@@ -1562,7 +1547,6 @@
             try {
               const result = JSON.parse(text);
               if (result && !result.error) {
-                console.log(`🎯 Got valid result despite 500 status:`, result);
                 return result.result || result;
               }
             } catch (e) {
@@ -1574,7 +1558,6 @@
         
         // Parse the JSON response
         const result = JSON.parse(text);
-        console.log(`✅ Parsed response:`, result);
         
         // Handle different response formats
         if (result.error) {
@@ -1610,8 +1593,6 @@
       };
       
       try {
-        console.log(`✍️ Writing to Stability blockchain:`, { contractAddress, method, args });
-        console.log(`📤 Sending payload:`, JSON.stringify(payload, null, 2));
         
         const response = await fetch(API_URL, {
           method: 'POST',
@@ -1622,11 +1603,8 @@
           mode: 'cors'
         });
         
-        console.log(`📊 Response status: ${response.status} ${response.statusText}`);
-        console.log(`📋 Response headers:`, [...response.headers.entries()]);
         
         const text = await response.text();
-        console.log(`📄 Raw response body:`, text);
         
         if (!response.ok) {
           console.error(`💥 Request failed but let's see if we got data anyway...`);
@@ -1635,7 +1613,6 @@
             try {
               const result = JSON.parse(text);
               if (result && !result.error) {
-                console.log(`🎯 Got valid result despite 500 status:`, result);
                 return result.result || result;
               }
             } catch (e) {
@@ -1647,7 +1624,6 @@
         
         // Parse the JSON response
         const result = JSON.parse(text);
-        console.log(`✅ Parsed response:`, result);
         
         // Handle different response formats
         if (result.error) {
@@ -1787,7 +1763,6 @@
         currentGamertag = xboxId;
         currentUserId = result.userId;
         
-        console.log(`🎮 Registration complete: User ID ${result.userId}, Gamertag: ${currentGamertag}`);
         
         const txLink = createExplorerLink(result.txHash);
         showStatus('registerStatus', `🎉 Profile created successfully! Transaction: <a href="${txLink}" target="_blank" class="tx-link">View on Explorer</a>`, 'success');
@@ -1805,7 +1780,6 @@
         // Load profile with proper gamertag already set
         setTimeout(() => {
           switchPage('profile');
-          console.log(`🔄 Loading profile for ${currentGamertag} (ID: ${currentUserId})`);
           loadUserProfile(result.userId);
         }, 3000);
 
@@ -1835,7 +1809,6 @@
         let player, currentXuid;
 
         // Always query the Xbox API for the supplied gamertag
-        console.log(`🔍 Searching for Xbox user: ${gamertag}`);
         const searchResult = await makeXboxRequest(`/search/${encodeURIComponent(gamertag)}`);
 
         if (!searchResult.people || searchResult.people.length === 0) {
@@ -1845,7 +1818,6 @@
         player = searchResult.people[0];
         currentXuid = player.xuid;
 
-        console.log(`✅ Found real Xbox user:`, {
           gamertag: player.gamertag,
           xuid: player.xuid,
           gamerScore: player.gamerScore,
@@ -1856,12 +1828,10 @@
         updateBasicXboxProfile(player);
         
         // Step 3: Try to get additional data (gracefully handle failures)
-        console.log(`📊 Loading additional Xbox data for XUID: ${currentXuid}`);
         
         try {
           // Try to get detailed profile
           const profileResult = await makeXboxRequest(`/account/${currentXuid}`);
-          console.log(`✅ Got detailed profile data:`, profileResult);
           updateXboxProfileDisplay(profileResult);
         } catch (error) {
           console.warn(`⚠️ Could not load detailed profile: ${error.message}`);
@@ -1870,7 +1840,6 @@
         try {
           // Try to get presence
           const presenceResult = await makeXboxRequest(`/presence/${currentXuid}`);
-          console.log(`✅ Got presence data:`, presenceResult);
           updateXboxPresenceDisplay(presenceResult);
         } catch (error) {
           console.warn(`⚠️ Could not load presence: ${error.message}`);
@@ -1880,7 +1849,6 @@
         try {
           // Try to get achievements
           const achievementsResult = await makeXboxRequest(`/achievements/player/${currentXuid}`);
-          console.log(`✅ Got achievements data:`, achievementsResult);
           updateXboxGameLibrary(achievementsResult);
         } catch (error) {
           console.warn(`⚠️ Could not load achievements: ${error.message}`);
@@ -1906,7 +1874,6 @@
         // Handle specific error cases more gracefully
         if (error.message.includes('Xbox gamertag not found')) {
           // User not found - show user-friendly message but still allow profile creation
-          console.log(`Xbox user ${gamertag} not found - showing profile without Xbox data`);
           document.getElementById('realGamertag').innerHTML = `${gamertag}`;
           document.getElementById('realGamerscore').textContent = '0';
           document.getElementById('accountTier').textContent = '❓ Xbox User Not Found';
@@ -1936,7 +1903,6 @@
           
         } else if (error.message.includes('Failed to fetch') || error.message.includes('CORS') || error.message.includes('backend service')) {
           // For any API outage, display unavailable status without demo data
-          console.log(`Xbox API backend unavailable for ${gamertag} - showing profile without Xbox data`);
           document.getElementById('realGamertag').innerHTML = `${gamertag}`;
           document.getElementById('realGamerscore').textContent = '0';
           document.getElementById('accountTier').textContent = '🔌 Xbox API Unavailable';
@@ -1965,7 +1931,6 @@
           
         } else {
           // Generic error - treat as user not found
-          console.log(`Unknown Xbox API error for ${gamertag}:`, error.message);
           document.getElementById('realGamertag').innerHTML = `${gamertag}`;
           document.getElementById('realGamerscore').textContent = '0';
           document.getElementById('accountTier').textContent = '❓ Xbox Data Unavailable';
@@ -2019,7 +1984,6 @@
           settings[setting.id] = setting.value;
         });
         
-        console.log(`📊 Updating profile with detailed Xbox data:`, settings);
         
         // Update gamerscore with real data
         const gamerscore = parseInt(settings.Gamerscore || '0');
@@ -2033,7 +1997,6 @@
         // Use real Xbox profile picture from detailed profile API
         const avatarElement = document.getElementById('gamerAvatar');
         if (settings.GameDisplayPicRaw) {
-          console.log(`📸 Using detailed Xbox profile picture: ${settings.GameDisplayPicRaw}`);
           avatarElement.innerHTML = `<img src="${settings.GameDisplayPicRaw}" alt="${settings.Gamertag || currentGamertag}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.textContent='${getGamertagInitials(settings.Gamertag || currentGamertag)}';">`;
         }
         
@@ -2237,7 +2200,6 @@
 
     // Clear Xbox Profile Data (ensures no previous user data persists)
     function clearXboxProfileData() {
-      console.log('🧹 Clearing previous Xbox profile data...');
       
       // Reset Xbox profile header
       document.getElementById('realGamertag').innerHTML = 'Loading...';
@@ -2285,7 +2247,6 @@
       // Clear game library data
       gameLibraryData = [];
       
-      console.log('✅ Xbox profile data cleared');
     }
 
     // Load User Profile (Enhanced with Xbox Integration)
@@ -2373,10 +2334,8 @@
     // Load User Trophies
     async function loadUserTrophies(userId) {
       try {
-        console.log(`🏆 Loading trophies for user ID: ${userId}, current gamertag: ${currentGamertag}`);
         
         const trophies = await callStabilityContract('getTrophiesForUser', [userId]);
-        console.log(`🎯 Retrieved ${trophies.length} trophies specifically for user ID ${userId}:`, trophies);
         
         // No filtering needed - contract already returns only relevant trophies
         const trophyCount = trophies.length;
@@ -2505,7 +2464,6 @@
         setButtonLoading('mintBtn', 'mintBtnText', true, 'Minting OGA...');
         const result = await callStabilityContract('mintTrophy', [userProfile.account, currentUserId, context, JSON.stringify(extraData)]);
         
-        console.log('🎯 Mint result:', result);
         
         // Show success with transaction details
         const txHash = result.txHash || 'demo-transaction';
@@ -2609,7 +2567,6 @@
     function updateBasicXboxProfile(player) {
       if (!player) return;
       
-      console.log(`🎮 Updating profile with real Xbox search data:`, player);
       
       // Update profile header with real Xbox data
       document.getElementById('realGamertag').innerHTML = `${player.gamertag}`;
@@ -2618,7 +2575,6 @@
       // Update Xbox User ID (XUID) in profile details
       if (player.xuid) {
         document.getElementById('displayXuid').textContent = player.xuid;
-        console.log(`🆔 Xbox User ID (XUID): ${player.xuid}`);
       }
       
       // Update account tier
@@ -2628,10 +2584,8 @@
       // Use real Xbox profile picture if available
       const avatarElement = document.getElementById('gamerAvatar');
       if (player.displayPicRaw) {
-        console.log(`📸 Using real Xbox profile picture: ${player.displayPicRaw}`);
         avatarElement.innerHTML = `<img src="${player.displayPicRaw}" alt="${player.gamertag}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.textContent='${getGamertagInitials(player.gamertag)}';">`;
       } else {
-        console.log(`📸 No profile picture available, using initials`);
         avatarElement.textContent = getGamertagInitials(player.gamertag);
       }
       

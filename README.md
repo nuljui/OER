@@ -1,29 +1,42 @@
 # OER Proof of Concept
 
-This repository contains a prototype for **One Earth Rising** (OER). It explores how gamer profiles and in-game achievements can be linked to blockchain assets. The project includes Solidity smart contracts, early HTML mockups and several documents describing the API and testing.
+This repository contains a clean, minimalist prototype for **One Earth Rising** (OER). It demonstrates how Xbox gamer profiles and achievements can be linked to blockchain assets.
 
-## Contents
+## Core Components
 
-| File/Folder | Purpose |
-|-------------|---------|
-| `GamerProfiles.sol` | Contract for registering PlayStation/Xbox IDs and basic social features |
-| `TrophyNFT.sol` | ERC‑721 contract that mints trophies linked to gamer profiles |
-| `CONTRACT_API_DOCUMENTATION.md` | Detailed reference for the contract API |
-| `CONTRACT_TEST_RESULTS.md` | Log of manual tests with notes about issues |
-| `XBOX_API_INSTRUCTIONS.md` | How to query Xbox Live via the OpenXBL API |
-| `index.html`, `index2.html`, `index3.html` | Static UI mockups demonstrating registration and profile screens |
-| `Project_overview.md` | Initial planning notes and architecture outline |
+| File | Purpose |
+|------|---------|
+| `GamerProfiles.sol` | Smart contract for registering Xbox profiles and managing gamer data |
+| `TrophyNFT.sol` | ERC-721 NFT contract for minting achievement trophies |
+| `index.html` | Complete web interface for registration, login, and profile management |
+| `server.js` | Express server providing Xbox API proxy functionality |
+| `package.json` | Node.js dependencies for the server |
 
-## Getting Started
+## Quick Start
 
-The HTML files are standalone prototypes. Open `index.html` (or the alternate versions) in a browser to explore the proposed interface. No build step is required.
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
-The Solidity contracts target `pragma solidity ^0.8.24` and rely on OpenZeppelin libraries. Use a tool such as Hardhat or Foundry if you wish to compile or test them locally.
+2. **Start the server:**
+   ```bash
+   npm start
+   ```
 
-## Notes
+3. **Open your browser:**
+   Navigate to `http://localhost:3000` to explore the interface
 
-* `CONTRACT_TEST_RESULTS.md` describes partial functionality—profile lookups and some mappings currently do not work correctly.
-* `XBOX_API_INSTRUCTIONS.md` includes an example API key for demonstration only. Replace it with your own key for real requests.
+## Architecture
+
+- **Frontend**: Single-page HTML application with embedded CSS/JavaScript
+- **Backend**: Minimal Express server for Xbox Live API proxying
+- **Blockchain**: Solidity contracts deployed on Stability Network
+- **Data**: Xbox Live integration via OpenXBL API
+
+## Documentation
+
+Additional documentation, test results, and development notes are available in the `Archive/` folder for reference.
 
 ## License
 
