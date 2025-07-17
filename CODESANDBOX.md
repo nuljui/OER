@@ -1,66 +1,52 @@
 # OGA Platform - CodeSandbox Setup
 
-🎮 **Xbox Live + Blockchain NFT Platform** with **NO CORS Issues!**
+## 🎮 Ownable Game Assets Platform
+Transform your Xbox Live achievements into blockchain-verified NFTs on Stability Network.
 
-## Quick Setup in CodeSandbox
+## 🚀 Quick Start in CodeSandbox
 
-### Option 1: Import from GitHub
-1. Go to [codesandbox.io](https://codesandbox.io)
-2. Click "Import from GitHub"
-3. Paste your repository URL
-4. Choose **Node.js** template (not Static)
-5. CodeSandbox will automatically run `npm start`
+1. **Upload these files:**
+   - `package.json` (dependencies)
+   - `server.js` (Xbox API proxy server)
+   - `index.html` (complete frontend)
 
-### Option 2: Manual Upload
-1. Create new **Node.js** sandbox
-2. Upload these files:
-   - `server.js`
-   - `index.html` 
-   - `package.json`
-   - All Solidity contracts (`.sol`)
-3. CodeSandbox will auto-install dependencies
+2. **Auto-install dependencies:**
+   CodeSandbox will automatically install: express, cors, node-fetch
 
-## How It Works
+3. **Start the server:**
+   - CodeSandbox will run `npm start` automatically
+   - Server runs on port 3000 with Xbox API proxy at `/api/xbox/*`
 
-### No CORS Issues! 🎉
-- **Frontend**: Your HTML served from CodeSandbox domain
-- **Proxy**: Xbox API calls go through `/api/xbox/*` endpoints  
-- **Same Origin**: No browser CORS blocking!
+## 🎯 Features
 
-### Architecture
-```
-Browser → CodeSandbox Domain → Your Server → Xbox API
-  ✅ Same origin        ✅ Server-to-server (no CORS)
-```
+- **Real Xbox Live Integration** - Search and validate Xbox gamertags
+- **Stability Blockchain** - Deploy smart contracts with zero gas fees
+- **NFT Minting** - Transform achievements into OGA NFTs
+- **Modern UI** - Responsive design with gaming aesthetics
 
-## Real Xbox API Calls
+## 🔧 Configuration
 
-Try any real Xbox gamertag:
-- Your own Xbox gamertag
-- `MajorNelson` (Microsoft's Xbox team lead)
-- `Chief123` (demo account)
+- **Xbox API Key**: Already configured (test key)
+- **Blockchain**: Stability Network (testnet ready)
+- **Contracts**: 
+  - Gamer Profiles: `0x8719a45fDD1B7F419681ff85fBf0Ec2f8359d9B7`
+  - Trophy NFT: `0x89AF63607260854c95156ED48f3416e33DD5AB11`
 
-All will pull **live data** from Xbox Live API!
+## 📡 API Endpoints
 
-## Features That Work
-✅ **Real Xbox profiles** - Live gamerscore, achievements, etc.  
-✅ **Blockchain integration** - Stability Network smart contracts  
-✅ **NFT minting** - Turn Xbox achievements into blockchain trophies  
-✅ **No setup required** - Works immediately for all users  
+- `GET /` - Main application
+- `GET /api/xbox/search/{gamertag}` - Xbox user search
+- `GET /api/xbox/account/{xuid}` - Xbox profile details
+- `GET /api/xbox/presence/{xuid}` - Xbox online status
+- `GET /api/xbox/achievements/player/{xuid}` - Xbox achievements
 
-## Development
-- **Local**: `npm start` → http://localhost:3000
-- **CodeSandbox**: Automatically runs on save
-- **Live sharing**: Send CodeSandbox URL to anyone
+## 🎮 Testing
 
-## Files Structure
-```
-/
-├── server.js          # Node.js server + Xbox API proxy
-├── index.html         # Frontend application  
-├── package.json       # Dependencies
-├── GamerProfiles.sol  # Smart contract
-└── TrophyNFT.sol      # NFT contract
-```
+Use these test gamertags:
+- `MockGamer123`
+- `TestUser001`
+- `xTACTICSx`
 
-🚀 **Perfect for demos, sharing, and development!** 
+## 🌐 Live Demo
+
+Once deployed in CodeSandbox, your app will be available at the provided URL. 
