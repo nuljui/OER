@@ -73,4 +73,37 @@ contract TrophyNFT is ERC721Enumerable, Ownable {
         }
         return list;
     }
+
+    // Get trophies directly by user ID (Profile ID) - much more efficient!
+    function getTrophiesForUser(uint256 userId) external view returns (uint256[] memory) {
+        // First pass: count how many trophies belong to this user
+        uint256 totalSupply = totalSupply();
+        uint256 userTrophyCount = 0;
+        
+        for (uint256 tokenId = 1; tokenId <= totalSupply; tokenId++) {
+            if (_exists(tokenId) && trophyInfo[tokenId].linkedUserId == userId) {
+                userTrophyCount++;
+            }
+        }
+        
+        // Second pass: collect the token IDs
+        uint256[] memory userTrophies = new uint256[](userTrophyCount);
+        uint256 index = 0;
+        
+        for (uint256 tokenId = 1; tokenId <= totalSupply; tokenId++) {
+            if (_exists(tokenId) && trophyInfo[tokenId].linkedUserId == userId) {
+                userTrophies[index] = tokenId;
+                index++;
+            }
+        }
+        
+        return userTrophies;
+    }
+
+    // Get trophy details by token ID
+    function getTrophyDetails(uint256 tokenId) external view returns (uint256, string memory, string memory, uint256) {
+        require(_exists(tokenId), "Trophy does not exist");
+        TrophyData memory trophy = trophyInfo[tokenId];
+        return (trophy.linkedUserId, trophy.psContext, trophy.extra, trophy.createdAt);
+    }
 }

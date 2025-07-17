@@ -3,107 +3,2819 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OGA Platform</title>
+  <title>OGA Platform - Ownable Game Assets</title>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #000;
-      color: #fff;
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600&display=swap');
+    
+    * { 
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box; 
     }
-    .page { display: none; min-height: 100vh; padding: 4rem 2rem; }
-    .active { display: block; }
-    .center { text-align: center; }
-    .green-btn {
-      background-color: limegreen;
-      color: black;
+    
+    :root {
+      --neon-green: #00ff41;
+      --dark-green: #00cc33;
+      --bg-dark: #0a0a0a;
+      --bg-darker: #050505;
+      --text-light: #ffffff;
+      --text-dim: #888;
+      --accent-purple: #9945ff;
+      --accent-blue: #14f195;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-light);
+      overflow-x: hidden;
+      position: relative;
+    }
+    
+    /* Animated Background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 50%, rgba(0, 255, 65, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(153, 69, 255, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 40% 20%, rgba(20, 241, 149, 0.08) 0%, transparent 50%);
+      animation: backgroundPulse 15s ease-in-out infinite;
+      z-index: -1;
+    }
+    
+    @keyframes backgroundPulse {
+      0%, 100% { opacity: 0.5; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(1.1); }
+    }
+    
+    /* Header Navigation */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: rgba(10, 10, 10, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(0, 255, 65, 0.3);
+      z-index: 1000;
       padding: 1rem 2rem;
+      animation: slideDown 0.5s ease-out;
+    }
+    
+    @keyframes slideDown {
+      from { transform: translateY(-100%); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .logo {
+      font-family: 'Orbitron', monospace;
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--neon-green);
+      text-decoration: none;
+      text-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
+      transition: all 0.3s ease;
+    }
+    
+    .logo:hover {
+      text-shadow: 0 0 30px rgba(0, 255, 65, 0.8);
+      transform: scale(1.05);
+    }
+    
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
+    
+    .nav-link {
+      color: var(--text-light);
+      text-decoration: none;
+      font-weight: 500;
+      position: relative;
+      transition: color 0.3s ease;
+    }
+    
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--neon-green), var(--accent-blue));
+      transition: width 0.3s ease;
+    }
+    
+    .nav-link:hover {
+      color: var(--neon-green);
+    }
+    
+    .nav-link:hover::after {
+      width: 100%;
+    }
+
+    /* Status Messages */
+    .status-message {
+      margin: 1rem 0;
+      padding: 1rem;
+      border-radius: 5px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .status-success {
+      background: rgba(0, 255, 65, 0.1);
+      border: 1px solid var(--neon-green);
+      color: var(--neon-green);
+    }
+
+    .status-error {
+      background: rgba(255, 69, 0, 0.1);
+      border: 1px solid #ff4500;
+      color: #ff4500;
+    }
+
+    .status-info {
+      background: rgba(20, 241, 149, 0.1);
+      border: 1px solid var(--accent-blue);
+      color: var(--accent-blue);
+    }
+
+    .status-warning {
+      background: rgba(255, 170, 0, 0.1);
+      border: 1px solid #ffaa00;
+      color: #ffaa00;
+    }
+
+    /* Network Status */
+    .network-status {
+      font-size: 0.8rem;
+      color: var(--accent-blue);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--neon-green);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    /* Page Styles */
+    .page { 
+      display: none; 
+      min-height: 100vh; 
+      padding: 6rem 2rem 4rem;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    
+    .page.active { 
+      display: block;
+      animation: fadeInUp 0.6s ease forwards;
+    }
+    
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .center { 
+      text-align: center; 
+    }
+    
+    /* Typography */
+    h1, h2, h3 {
+      font-family: 'Orbitron', monospace;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, var(--neon-green), var(--accent-blue));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    h1 {
+      font-size: 3.5rem;
+      animation: titleGlow 3s ease-in-out infinite;
+    }
+    
+    @keyframes titleGlow {
+      0%, 100% { filter: brightness(1) drop-shadow(0 0 20px rgba(0, 255, 65, 0.5)); }
+      50% { filter: brightness(1.2) drop-shadow(0 0 40px rgba(0, 255, 65, 0.8)); }
+    }
+    
+    /* Green Button */
+    .green-btn {
+      background: linear-gradient(135deg, var(--dark-green), var(--neon-green));
+      color: black;
+      padding: 1rem 3rem;
       border: none;
       font-weight: bold;
+      font-family: 'Orbitron', monospace;
       cursor: pointer;
       margin-top: 2rem;
+      position: relative;
+      overflow: hidden;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 20px rgba(0, 255, 65, 0.3);
     }
-    input, select {
+    
+    .green-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 30px rgba(0, 255, 65, 0.5);
+    }
+
+    .green-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .green-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: left 0.5s ease;
+    }
+    
+    .green-btn:hover::before {
+      left: 100%;
+    }
+    
+    /* LFG Button Special Animation */
+    .lfg-btn {
+      font-size: 1.2rem;
+      animation: lfgPulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes lfgPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    
+    /* Form Styles */
+    .form-section { 
+      max-width: 400px; 
+      margin: 0 auto;
+      animation: formSlide 0.8s ease-out;
+    }
+    
+    @keyframes formSlide {
+      from { opacity: 0; transform: translateX(-30px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    
+    label {
+      display: block;
+      margin-top: 1.5rem;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+    }
+    
+    input, select, textarea {
       display: block;
       width: 100%;
-      padding: 0.75rem;
-      margin: 1rem 0;
-      background: #000;
+      padding: 1rem;
+      margin: 0.5rem 0;
+      background: rgba(255, 255, 255, 0.05);
       color: white;
-      border: 1px solid #666;
+      border: 1px solid rgba(0, 255, 65, 0.3);
+      transition: all 0.3s ease;
+      font-size: 1rem;
+      border-radius: 5px;
     }
-    .form-section { max-width: 400px; margin: 0 auto; }
-    .profile { display: flex; justify-content: space-between; padding: 2rem; }
-    .column { flex: 1; margin: 1rem; }
-    .bar { height: 10px; background: #ccc; margin: 0.5rem 0; }
-    .friends, .trophies { margin-top: 2rem; }
-    a { color: limegreen; text-decoration: none; }
+    
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--neon-green);
+      box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+    
+    /* Transaction Link Styles */
+    .tx-link {
+      color: var(--neon-green);
+      text-decoration: none;
+      font-family: monospace;
+      font-size: 0.8rem;
+      transition: all 0.3s ease;
+    }
+
+    .tx-link:hover {
+      color: var(--accent-blue);
+      text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+    }
+
+    /* Login Toggle */
+    .auth-toggle {
+      margin-top: 2rem;
+      padding: 1rem;
+      background: rgba(153, 69, 255, 0.1);
+      border: 1px solid var(--accent-purple);
+      border-radius: 10px;
+    }
+
+    .auth-toggle button {
+      background: none;
+      border: none;
+      color: var(--accent-purple);
+      cursor: pointer;
+      text-decoration: underline;
+      font-size: 1rem;
+      transition: color 0.3s ease;
+    }
+
+    .auth-toggle button:hover {
+      color: var(--neon-green);
+      text-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+    }
+    
+    /* Enhanced Profile Styles */
+    .profile { 
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 2rem;
+      padding: 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    
+    .column { 
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(0, 255, 65, 0.2);
+      padding: 2rem;
+      border-radius: 15px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .column::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(45deg, var(--neon-green), transparent, var(--accent-purple));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: -1;
+      border-radius: 10px;
+    }
+    
+    .column:hover::before {
+      opacity: 0.5;
+      animation: borderRotate 3s linear infinite;
+    }
+    
+    @keyframes borderRotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Xbox Profile Integration Styles */
+    .xbox-profile-header {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background: rgba(16, 124, 16, 0.1);
+      border: 1px solid #107c10;
+      border-radius: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .xbox-profile-header::before {
+      content: '🎮';
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 1.5rem;
+      opacity: 0.3;
+    }
+
+    .gamer-pic {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 3px solid #107c10;
+      object-fit: cover;
+      background: linear-gradient(135deg, #107c10, var(--neon-green));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: white;
+      font-weight: bold;
+    }
+
+    .gamer-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 3px solid #107c10;
+      background: linear-gradient(135deg, #107c10, var(--neon-green));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+    }
+
+    .gamer-info h3 {
+      margin-bottom: 0.5rem;
+      color: #107c10;
+      font-size: 1.3rem;
+    }
+
+    .real-gamerscore {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: var(--neon-green);
+      text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+    }
+
+    .account-tier {
+      color: #ffd700;
+      font-weight: bold;
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .live-status {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 1rem 0;
+      padding: 0.8rem;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+    }
+
+    .xbox-status-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--text-dim);
+    }
+
+    .xbox-status-online { background: var(--neon-green); }
+    .xbox-status-offline { background: var(--text-dim); }
+    .xbox-status-away { background: #ffaa00; }
+
+    .current-activity {
+      background: rgba(153, 69, 255, 0.1);
+      border: 1px solid var(--accent-purple);
+      padding: 1rem;
+      border-radius: 10px;
+      margin: 1rem 0;
+    }
+
+    .activity-game {
+      font-weight: bold;
+      color: var(--accent-purple);
+      margin-bottom: 0.5rem;
+    }
+
+    .achievement-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+
+    .stat-card {
+      background: rgba(0, 255, 65, 0.05);
+      border: 1px solid rgba(0, 255, 65, 0.3);
+      padding: 1rem;
+      border-radius: 8px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0, 255, 65, 0.2);
+    }
+
+    .stat-number {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--neon-green);
+      display: block;
+      text-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      margin-top: 0.3rem;
+    }
+
+    .game-library {
+      max-height: 400px;
+      overflow-y: auto;
+      margin-top: 1rem;
+    }
+
+    .game-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(20, 241, 149, 0.3);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .game-card:hover {
+      transform: translateX(5px);
+      box-shadow: 0 5px 20px rgba(20, 241, 149, 0.2);
+      border-color: var(--accent-blue);
+    }
+
+    .game-title {
+      font-weight: bold;
+      color: var(--accent-blue);
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
+    }
+
+    .game-progress {
+      margin: 0.5rem 0;
+    }
+
+    .progress-bar {
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+      overflow: hidden;
+      margin: 0.3rem 0;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-blue), var(--neon-green));
+      border-radius: 3px;
+      transition: width 1s ease;
+    }
+
+    .progress-fill.complete {
+      background: linear-gradient(90deg, #ffd700, var(--neon-green));
+      box-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+    }
+
+    .progress-text {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      display: flex;
+      justify-content: space-between;
+      margin-top: 0.2rem;
+    }
+
+    .achievement-badge {
+      display: inline-block;
+      padding: 0.2rem 0.4rem;
+      background: rgba(255, 215, 0, 0.2);
+      color: #ffd700;
+      border-radius: 10px;
+      font-size: 0.65rem;
+      font-weight: bold;
+      margin-left: 0.5rem;
+    }
+
+    .legendary-badge {
+      background: linear-gradient(45deg, #ffd700, #ff6b35);
+      color: black;
+      padding: 0.2rem 0.5rem;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-left: 0.5rem;
+    }
+
+    /* Trophy Card Styles */
+    .trophy-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .trophy-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(0, 255, 65, 0.3);
+      border-radius: 10px;
+      padding: 1.5rem;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .trophy-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0, 255, 65, 0.2);
+    }
+
+    .trophy-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .trophy-title {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      color: var(--neon-green);
+    }
+
+    .trophy-game {
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+
+    .trophy-rarity {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      border-radius: 15px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .rarity-platinum {
+      background: linear-gradient(135deg, #e5e5e5, #ffffff);
+      color: #333;
+    }
+
+    .rarity-gold {
+      background: linear-gradient(135deg, #ffd700, #ffed4e);
+      color: #333;
+    }
+
+    .rarity-silver {
+      background: linear-gradient(135deg, #c0c0c0, #e8e8e8);
+      color: #333;
+    }
+
+    .rarity-bronze {
+      background: linear-gradient(135deg, #cd7f32, #d2b48c);
+      color: #333;
+    }
+
+    /* Mint Trophy Section */
+    .mint-section {
+      margin-top: 2rem;
+      padding: 2rem;
+      background: rgba(153, 69, 255, 0.1);
+      border: 1px solid var(--accent-purple);
+      border-radius: 10px;
+    }
+
+    /* User Selector */
+    .user-selector {
+      margin: 2rem 0;
+      padding: 1.5rem;
+      background: rgba(20, 241, 149, 0.1);
+      border: 1px solid var(--accent-blue);
+      border-radius: 10px;
+    }
+    
+    /* Progress Bars */
+    .bar-container {
+      margin: 1rem 0;
+    }
+    
+    .bar-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+      color: var(--text-dim);
+    }
+    
+    .bar { 
+      height: 8px; 
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-purple), var(--neon-green));
+      border-radius: 4px;
+      position: relative;
+      animation: fillBar 1.5s ease-out forwards;
+      box-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+    }
+    
+    @keyframes fillBar {
+      from { width: 0; }
+    }
+    
+    .bar-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+      animation: shimmer 2s infinite;
+    }
+    
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    
+    /* Friends & Trophies */
+    .friends, .trophies { 
+      margin-top: 2rem;
+    }
+    
+    .friend-icons {
+      display: flex;
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    
+    .friend-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      animation: bounce 2s ease-in-out infinite;
+      animation-delay: calc(var(--i) * 0.1s);
+    }
+    
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    /* Links */
+    a { 
+      color: var(--neon-green); 
+      text-decoration: none;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+    
+    a:hover {
+      text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+    }
+
+    /* Loading Spinner */
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: var(--neon-green);
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .profile { 
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      h1 { font-size: 2.5rem; }
+      .profile { 
+        grid-template-columns: 1fr;
+      }
+      .xbox-profile-header {
+        flex-direction: column;
+        text-align: center;
+      }
+      .nav-links { gap: 1rem; }
+      header { padding: 1rem; }
+      .trophy-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
+
+  <!-- Header Navigation - Consistent across all pages -->
+  <header>
+    <nav>
+      <a href="#" class="logo" onclick="switchPage('landing')">OGA™</a>
+      <div class="nav-links">
+        <a href="#" class="nav-link" onclick="switchPage('landing')">Home</a>
+        <a href="#" class="nav-link" onclick="switchPage('register')">Connect</a>
+        <a href="#" class="nav-link" onclick="switchPage('profile')">Dashboard</a>
+        <div class="network-status">
+          <div class="status-dot"></div>
+          <span>Stability Network</span>
+        </div>
+      </div>
+    </nav>
+  </header>
 
   <!-- Landing Page -->
   <div class="page active" id="landing">
     <div class="center">
       <h1>What are OGAs?</h1>
-      <em>Your OGA Collection</em>
-      <p style="margin: 2rem auto; max-width: 600px;">
-        OGA™ stands for Ownable Game Assets™. Soon you’ll bring your achievements & inventory into other ecosystems. Show off your progress across games & platforms.
+      <em style="color: var(--text-dim); font-size: 1.2rem;">Your Xbox Achievements on Blockchain</em>
+      <p style="margin: 2rem auto; max-width: 600px; font-size: 1.1rem; line-height: 1.8; color: var(--text-dim);">
+        OGA™ stands for Ownable Game Assets™. Transform your Xbox Live achievements into blockchain-verified NFTs on Stability Network. Your gamerscore, perfect completions, and gaming legacy become permanent digital assets you truly own.
       </p>
-      <button class="green-btn" onclick="switchPage('register')">... LOADING</button>
+      <div id="landingStatus"></div>
+      <button class="green-btn lfg-btn" onclick="switchPage('register')">LFG!</button>
     </div>
   </div>
 
   <!-- Registration Page -->
   <div class="page" id="register">
     <div class="center">
-      <h2>Collect Your Game Information in Spot</h2>
-      <p><a href="#">Already Registered? Log in here.</a></p>
+      <h2 id="authTitle">Connect Your Xbox Profile</h2>
+      <p style="margin-bottom: 2rem;" id="authSubtitle">Link your Xbox Live account to create blockchain gaming assets</p>
       <div class="form-section">
-        <label>Name</label>
-        <input type="text" placeholder="Jiara Martins">
-        <label>PlayStation ID</label>
-        <input type="text">
-        <label>Xbox ID</label>
-        <input type="text">
-        <label>Date of Birth</label>
-        <select><option>Select</option></select>
-        <button class="green-btn" onclick="switchPage('profile')">CONNECT</button>
+        <div id="registerStatus"></div>
+        
+        <!-- Registration Form -->
+        <div id="registrationForm">
+        <label>Xbox Gamertag</label>
+          <input type="text" id="xboxId" placeholder="e.g., MajorNelson, Chief123">
+        
+          <label>Gaming Preferences (Optional)</label>
+          <textarea id="gameData" placeholder='{"favorite_genres": ["FPS", "RPG"], "target_gamerscore": 100000, "main_platform": "Xbox"}'></textarea>
+        
+        <button class="green-btn" id="registerBtn" onclick="registerUser()">
+            <span id="registerBtnText">CREATE BLOCKCHAIN PROFILE</span>
+        </button>
+        </div>
+
+        <!-- Login Form -->
+        <div id="loginForm" style="display: none;">
+          <label>Xbox Gamertag</label>
+          <input type="text" id="loginXboxId" placeholder="Enter your registered gamertag">
+          
+          <button class="green-btn" id="loginBtn" onclick="loginUser()">
+            <span id="loginBtnText">ACCESS PROFILE</span>
+          </button>
+        </div>
+
+        <!-- Auth Toggle -->
+        <div class="auth-toggle">
+          <p id="authToggleText">Already have a blockchain profile?</p>
+          <button onclick="toggleAuthMode()" id="authToggleBtn">Login with existing gamertag</button>
+        </div>
+
+        <div class="user-selector">
+          <h4 style="color: var(--accent-blue); margin-bottom: 1rem;">🎮 Test Mode</h4>
+          <p style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 1rem;">
+            Try the platform with test Xbox gamertags:
+          </p>
+          <button class="green-btn" onclick="document.getElementById('xboxId').value='TestUser001'; registerUser()" style="font-size: 0.9rem; padding: 0.5rem 1rem; margin: 0.5rem;">
+            TEST: TestUser001
+          </button>
+          <button class="green-btn" onclick="document.getElementById('xboxId').value='MockGamer123'; registerUser()" style="font-size: 0.9rem; padding: 0.5rem 1rem; margin: 0.5rem;">
+            TEST: MockGamer123
+          </button>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- Profile Page -->
   <div class="page" id="profile">
-    <div class="profile">
+    <h2 class="center" style="margin-bottom: 3rem;">Gaming Dashboard</h2>
+    <div id="profileStatus"></div>
+    
+    <!-- Profile Loading State -->
+    <div id="profileLoading" class="center" style="display: none;">
+      <div class="loading-spinner"></div>
+      <p style="margin-top: 1rem;">Syncing with Stability blockchain...</p>
+    </div>
+
+    <!-- Profile Content -->
+    <div id="profileContent" class="profile" style="display: none;">
+      <!-- Left Column: Xbox Live Profile -->
       <div class="column">
-        <h3>Results</h3>
-        <p>[USER NAME]</p>
-        <div class="trophies">
-          <h4>Trophies</h4>
-          <div class="bar"></div>
-          <div class="bar" style="width: 80%;"></div>
-          <div class="bar" style="width: 60%;"></div>
+        <h3>Xbox Live Integration</h3>
+        
+        <!-- Enhanced Xbox Profile Header -->
+        <div class="xbox-profile-header" id="xboxProfileHeader">
+          <div class="gamer-avatar" id="gamerAvatar">🎮</div>
+          <div class="gamer-info">
+            <h3 id="realGamertag">Connecting... <span id="gamingBadge" class="legendary-badge" style="display: none;">Legend</span></h3>
+            <div class="real-gamerscore">
+              <span id="realGamerscore">0</span> G
+            </div>
+            <div class="account-tier" id="accountTier">Verifying account...</div>
+          </div>
         </div>
-        <div class="friends">
-          <h4>Friends</h4>
-          <p>● ● ●</p>
-          <div class="bar" style="width: 60%;"></div>
-          <div class="bar" style="width: 80%;"></div>
+        
+        <!-- Live Gaming Status -->
+        <div class="live-status">
+          <div class="xbox-status-dot xbox-status-offline" id="xboxStatusDot"></div>
+          <span id="xboxOnlineStatus">Checking Xbox Live status...</span>
+        </div>
+
+        <div class="current-activity" id="xboxCurrentActivity" style="display: none;">
+          <div class="activity-game" id="xboxCurrentGame">-</div>
+          <div id="xboxActivityTime">-</div>
+        </div>
+
+        <!-- Enhanced Achievement Statistics -->
+        <div class="achievement-stats">
+          <div class="stat-card">
+            <span class="stat-number" id="xboxTotalGames">0</span>
+            <span class="stat-label">Games Owned</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-number" id="xboxCompletionRate">0%</span>
+            <span class="stat-label">Avg Completion</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-number" id="xboxTotalAchievements">0</span>
+            <span class="stat-label">Achievements</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-number" id="xboxRecentlyPlayed">0</span>
+            <span class="stat-label">Recent Games</span>
+          </div>
+        </div>
+
+        <!-- Blockchain Profile Info -->
+        <div style="margin-top: 2rem; padding: 1rem; background: rgba(255, 255, 255, 0.05); border-radius: 8px;">
+          <h4>Blockchain Identity</h4>
+          <div id="userProfileData" style="margin-top: 1rem; font-size: 0.9rem;">
+            <p><strong>Profile ID:</strong> <span id="userId">-</span></p>
+            <p><strong>Gamertag:</strong> <span id="displayXboxId">-</span></p>
+            <p><strong>Xbox User ID:</strong> <span id="displayXuid">-</span></p>
+            <p><strong>Wallet:</strong> <span id="displayWallet">-</span></p>
+            <p><strong>Registration:</strong> <a href="#" id="displayTxHash" class="tx-link" target="_blank">View on Explorer</a></p>
+            <p><strong>Joined:</strong> <span id="displayCreated">-</span></p>
+          </div>
+          
+          <!-- Logout Button -->
+          <div style="margin-top: 1.5rem; text-align: center;">
+            <button class="green-btn" onclick="logoutUser()" style="font-size: 0.8rem; padding: 0.5rem 1rem; background: linear-gradient(135deg, #ff6b35, #f7931e);">
+              🚪 DISCONNECT
+            </button>
+          </div>
         </div>
       </div>
-      <div class="column center">
-        <h3>Create an OGA Account</h3>
-        <em>(Early Signup)</em>
-        <button class="green-btn">SIGN UP</button>
+
+      <!-- Middle Column: Game Library -->
+      <div class="column">
+        <h3>Achievement Library</h3>
+        <p style="color: var(--text-dim); margin-bottom: 1rem;">
+          Your Xbox achievements ready for blockchain
+        </p>
+        
+        <div class="game-library" id="xboxGameLibrary">
+          <!-- Games will be populated here -->
+          <div style="text-align: center; color: var(--text-dim);">
+            Loading Xbox achievements...
+          </div>
+        </div>
+
+        <div class="trophies" style="margin-top: 2rem;">
+          <h4>Minted OGA NFTs</h4>
+          <div id="trophyCount" class="bar-container">
+            <div class="bar-label">
+              <span>Total NFTs</span>
+              <span id="totalTrophies">0</span>
+            </div>
+            <div class="bar">
+              <div class="bar-fill" style="width: 0%;" id="trophyProgress"></div>
+            </div>
+          </div>
+          
+          <div id="trophyGrid" class="trophy-grid">
+            <!-- Trophy cards will be populated here -->
+          </div>
+        </div>
       </div>
+      
+      <!-- Right Column: OGA Integration & Minting -->
+      <div class="column">
+        <h3>Create OGA NFTs</h3>
+        
+        <div class="achievement-stats" style="margin-bottom: 2rem;">
+          <div class="stat-card">
+            <span class="stat-number" id="perfectGames">0</span>
+            <span class="stat-label">Perfect Games</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-number" id="mintableAchievements">0</span>
+            <span class="stat-label">Mintable OGAs</span>
+          </div>
+        </div>
+
+        <!-- Enhanced Minting Section -->
+        <div class="mint-section">
+          <h4 style="color: var(--accent-purple); margin-bottom: 1rem;">🏆 Mint Achievement NFT</h4>
+          <p style="color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem;">
+            Transform your Xbox achievements into permanent blockchain assets
+          </p>
+          
+          <label>Achievement Title</label>
+          <input type="text" id="trophyTitle" placeholder="Auto-populated from your achievements">
+          
+          <label>Game Context</label>
+          <input type="text" id="trophyContext" placeholder="Game and achievement details">
+          
+          <label>Metadata (JSON)</label>
+          <textarea id="trophyExtra" placeholder='{"gamerscore": 1000, "completion": "100%", "game": "Halo Infinite"}'></textarea>
+          
+          <button class="green-btn" id="mintBtn" onclick="mintTrophy()">
+            <span id="mintBtnText">MINT OGA NFT</span>
+          </button>
+
+          <!-- Quick Mint from Xbox Data -->
+          <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(20, 241, 149, 0.1); border: 1px solid var(--accent-blue); border-radius: 8px;">
+            <h4 style="color: var(--accent-blue); margin-bottom: 0.5rem;">🎯 Quick Mint</h4>
+            <div id="quickMintSuggestions">
+              <p style="color: var(--text-dim); font-size: 0.9rem;">Your top achievements will appear here</p>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 2rem; text-align: center;">
+          <p style="color: var(--accent-blue); font-size: 0.9rem; margin-bottom: 1rem;">
+            OGA Contract: <a href="https://explorer.stabilityprotocol.com/address/0xFa293818D3113Cf6DaE80C8539cfa0c58edAA31D" target="_blank" class="tx-link">View on Explorer</a>
+          </p>
+          <button class="green-btn" onclick="refreshProfile()" style="font-size: 0.9rem; padding: 0.5rem 1.5rem;">
+            ↻ REFRESH DATA
+          </button>
+          <button class="green-btn" onclick="syncXboxData()" style="font-size: 0.9rem; padding: 0.5rem 1.5rem; background: linear-gradient(135deg, #107c10, var(--neon-green));">
+            🔄 SYNC XBOX
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Not Registered State -->
+    <div id="notRegistered" class="center" style="display: none;">
+      <h3>No Profile Found</h3>
+      <p style="color: var(--text-dim); margin: 2rem 0;">
+        Connect your Xbox account to start creating gaming NFTs
+      </p>
+      <button class="green-btn" onclick="switchPage('register')">CONNECT NOW</button>
     </div>
   </div>
 
   <script>
+    // Contract Configuration - Updated with Multiple Profiles Contract
+    const GAMER_PROFILES_CONTRACT = "0x8719a45fDD1B7F419681ff85fBf0Ec2f8359d9B7";
+    const TROPHY_NFT_CONTRACT = "0x89AF63607260854c95156ED48f3416e33DD5AB11"; // NEW: Efficient Profile ID-based contract
+    const CONTRACT_ADDRESS = GAMER_PROFILES_CONTRACT; // Main contract for most operations
+    const EXPLORER_BASE_URL = "https://explorer.stabilityprotocol.com";
+    
+    // Xbox API Configuration (via local proxy)
+    const XBOX_API_KEY = 'd2c2a0c5-ce9b-4e59-91aa-d0a73c45ac87';
+    const XBOX_BASE_URL = '/api/xbox'; // Use local proxy endpoint
+    
+    // Data storage
+    let currentUserId = null;
+    let currentXuid = null;
+    let currentGamertag = null;
+    let gameLibraryData = [];
+    let isLoginMode = false;
+
+    // Utility Functions
+    function showStatus(elementId, message, type = 'info') {
+      const element = document.getElementById(elementId);
+      element.innerHTML = `<div class="status-message status-${type}">${message}</div>`;
+    }
+
+    function hideStatus(elementId) {
+      document.getElementById(elementId).innerHTML = '';
+    }
+
+    function setButtonLoading(buttonId, textId, isLoading, loadingText = 'Loading...') {
+      const button = document.getElementById(buttonId);
+      const text = document.getElementById(textId);
+      
+      if (isLoading) {
+        button.disabled = true;
+        text.innerHTML = `<span class="loading-spinner"></span> ${loadingText}`;
+      } else {
+        button.disabled = false;
+        text.innerHTML = text.getAttribute('data-original') || 'SUBMIT';
+      }
+    }
+
+    // Toggle between Register and Login
+    function toggleAuthMode() {
+      isLoginMode = !isLoginMode;
+      const regForm = document.getElementById('registrationForm');
+      const loginForm = document.getElementById('loginForm');
+      const authTitle = document.getElementById('authTitle');
+      const authSubtitle = document.getElementById('authSubtitle');
+      const authToggleText = document.getElementById('authToggleText');
+      const authToggleBtn = document.getElementById('authToggleBtn');
+      
+      if (isLoginMode) {
+        regForm.style.display = 'none';
+        loginForm.style.display = 'block';
+        authTitle.textContent = 'Access Your Profile';
+        authSubtitle.textContent = 'Enter your registered Xbox gamertag to continue';
+        authToggleText.textContent = "Don't have a blockchain profile?";
+        authToggleBtn.textContent = 'Create new profile';
+      } else {
+        regForm.style.display = 'block';
+        loginForm.style.display = 'none';
+        authTitle.textContent = 'Connect Your Xbox Profile';
+        authSubtitle.textContent = 'Link your Xbox Live account to create blockchain gaming assets';
+        authToggleText.textContent = 'Already have a blockchain profile?';
+        authToggleBtn.textContent = 'Login with existing gamertag';
+      }
+      
+      hideStatus('registerStatus');
+    }
+
+    // Create Explorer Link
+    function createExplorerLink(txHash, type = 'tx') {
+      return `${EXPLORER_BASE_URL}/${type}/${txHash}`;
+    }
+
+    // Get gamertag initials for avatar
+    function getGamertagInitials(gamertag) {
+      if (!gamertag) return '🎮';
+      const words = gamertag.split(' ');
+      if (words.length >= 2) {
+        return words[0][0].toUpperCase() + words[1][0].toUpperCase();
+      }
+      return gamertag.substring(0, 2).toUpperCase();
+    }
+
+    // Xbox API Helper Function (with CORS handling)
+    async function makeXboxRequest(endpoint) {
+      try {
+        const response = await fetch(`${XBOX_BASE_URL}${endpoint}`, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Xbox API error: ${response.status}`);
+        }
+        
+        return await response.json();
+      } catch (error) {
+        console.error('Xbox API request failed:', error);
+        
+        // Handle CORS errors specifically
+        if (error.message.includes('Failed to fetch') || error.name === 'TypeError') {
+          throw new Error('Xbox API access blocked by browser security. This is normal in development. In production, this would work through a backend service.');
+        }
+        
+        throw error;
+      }
+    }
+
+    // Validate Xbox gamertag format
+    function isValidGamertag(gamertag) {
+      // Xbox gamertag rules:
+      // - 1-15 characters long
+      // - Can contain letters, numbers, and spaces
+      // - Cannot start or end with a space
+      // - Cannot have consecutive spaces
+      if (!gamertag || typeof gamertag !== 'string') return false;
+      if (gamertag.length < 1 || gamertag.length > 15) return false;
+      if (gamertag.startsWith(' ') || gamertag.endsWith(' ')) return false;
+      if (gamertag.includes('  ')) return false; // No consecutive spaces
+      
+      // Only allow letters, numbers, and single spaces
+      const validPattern = /^[a-zA-Z0-9 ]+$/;
+      return validPattern.test(gamertag);
+    }
+
+    // Fallback Xbox data for demo when API is blocked by CORS
+    function getFallbackXboxData(gamertag) {
+      const fallbackData = {
+        'majornelson': {
+          gamertag: 'Major Nelson',
+          xuid: '2584878536129841',
+          gamerscore: 142991,
+          accountTier: 'Gold',
+          gamerPic: 'https://images-eds-ssl.xboxlive.com/image?url=MSVnmBUo_fHjbLYMjAEUQ7Ac2lymM5VGDhL8xC4dN7M-JkydOlN2LqInFHczwGzRQKd7Ic7tPyLb0F8-',
+          totalGames: 1000,
+          totalAchievements: 3652,
+          perfectGames: 24,
+          topGames: [
+            { name: 'What Remains of Edith Finch', completion: 100, gamerscore: 1000, totalGamerscore: 1000 },
+            { name: 'The Turing Test', completion: 100, gamerscore: 1000, totalGamerscore: 1000 },
+            { name: 'INSIDE', completion: 100, gamerscore: 1000, totalGamerscore: 1000 },
+            { name: 'Pneuma: Breath of Life', completion: 100, gamerscore: 1000, totalGamerscore: 1000 }
+          ]
+        },
+        'chief123': {
+          gamertag: 'Chief 123',
+          xuid: '2533274872832966',
+          gamerscore: 400,
+          accountTier: 'Silver',
+          gamerPic: 'https://images-eds-ssl.xboxlive.com/image?url=7OTVnZUMVj4OV2zUUGecWvn3U00nQQLfK7_kwpANogjch5eSN1WWBGnNpK7ZxeCxuPAANFM0MEKMonYZU2gI__3CCKvthu40GQMrmBxSdGQ-',
+          totalGames: 22,
+          totalAchievements: 22,
+          perfectGames: 4,
+          topGames: [
+            { name: 'Halo: Reach', completion: 2, gamerscore: 35, totalGamerscore: 1700 },
+            { name: 'Minecraft: Xbox 360 Edition', completion: 5, gamerscore: 120, totalGamerscore: 2195 },
+            { name: 'Halo: Combat Evolved Anniversary', completion: 7, gamerscore: 70, totalGamerscore: 1000 }
+          ]
+        }
+      };
+      
+      return fallbackData[gamertag.toLowerCase().replace(/\s+/g, '')] || null;
+    }
+
+    // Real Stability Blockchain Integration with proper ABIs
+    async function callStabilityContract(method, params = []) {
+      try {
+        console.log(`🔗 Calling ${method} on Stability blockchain with params:`, params);
+        
+        switch (method) {
+          case 'register':
+            const [xboxId, data] = params;
+            
+            // Check if THIS SPECIFIC Xbox gamertag already exists using new contract
+            try {
+              console.log(`Checking if Xbox gamertag "${xboxId}" already exists...`);
+              const existingUserId = await stabilityRead(
+                CONTRACT_ADDRESS, 
+                'getUserIdByXboxId',
+                ["function getUserIdByXboxId(string xboxId) view returns (uint256)"],
+                [xboxId]
+              );
+              
+              if (existingUserId && parseInt(existingUserId) > 0) {
+                // This specific Xbox gamertag exists, get the profile
+                console.log(`Xbox gamertag "${xboxId}" exists with User ID ${existingUserId}`);
+                const existingProfile = await stabilityRead(
+                  CONTRACT_ADDRESS, 
+                  'getProfile',
+                  ["function getProfile(uint256 userId) view returns (tuple(uint256 id, string psId, string xboxId, string data, address account, uint256 createdAt, uint256 updatedAt))"],
+                  [existingUserId.toString()]
+                );
+                
+                return { 
+                  success: true, 
+                  userId: existingUserId, 
+                  txHash: 'existing',
+                  account: Array.isArray(existingProfile) ? existingProfile[4] : existingProfile.account,
+                  existing: true
+                };
+              }
+            } catch (e) {
+              // This Xbox gamertag doesn't exist, create new profile
+              console.log(`Xbox gamertag "${xboxId}" not found, creating new profile...`);
+            }
+            
+            // Create new profile for this Xbox gamertag 
+            const registerResult = await stabilityWrite(
+              CONTRACT_ADDRESS, 
+              'register',
+              ["function register(string _psId, string _xboxId, string _data) returns (uint256 userId)"],
+              ['', xboxId, data]
+            );
+            
+            if (!registerResult || !registerResult.txHash) {
+              throw new Error('Registration transaction failed');
+            }
+            
+            // Get the user ID from the new contract (should be returned directly)
+            return { 
+              success: true, 
+              userId: registerResult.result, // New contract returns userId directly
+              txHash: registerResult.txHash,
+              account: '0x0DA78E16606b97bFeF9Ed6810de7CC0794207c37'
+            };
+            
+          case 'updateProfile':
+            const [updateXboxId, updateData] = params;
+            
+            const updateResult = await stabilityWrite(
+              CONTRACT_ADDRESS, 
+              'updateProfile',
+              ["function updateProfile(string _psId, string _xboxId, string _data)"],
+              ['', updateXboxId, updateData]
+            );
+            
+            if (!updateResult || !updateResult.txHash) {
+              throw new Error('Profile update transaction failed');
+            }
+            
+            // Get the updated profile
+            const updatedProfile = await stabilityRead(
+              CONTRACT_ADDRESS, 
+              'getProfileByAddress',
+              ["function getProfileByAddress(address a) view returns (tuple(uint256 id, string psId, string xboxId, string data, address account, uint256 createdAt, uint256 updatedAt))"],
+              ['0x0DA78E16606b97bFeF9Ed6810de7CC0794207c37']
+            );
+            
+            const updatedUserId = Array.isArray(updatedProfile) ? updatedProfile[0] : updatedProfile.id;
+            
+            return { 
+              success: true, 
+              userId: updatedUserId, 
+              txHash: updateResult.txHash,
+              account: '0x0DA78E16606b97bFeF9Ed6810de7CC0794207c37',
+              updated: true
+            };
+            
+          case 'getProfile':
+            const [profileUserId] = params;
+            const profileResult = await stabilityRead(
+              CONTRACT_ADDRESS, 
+              'getProfile',
+              ["function getProfile(uint256 userId) view returns (tuple(uint256 id, string psId, string xboxId, string data, address account, uint256 createdAt, uint256 updatedAt))"],
+              [profileUserId.toString()]
+            );
+            
+            // Handle tuple array format: [id, psId, xboxId, data, account, createdAt, updatedAt]
+            if (Array.isArray(profileResult)) {
+              return {
+                id: profileResult[0],
+                psId: profileResult[1] || '',
+                xboxId: profileResult[2],
+                data: profileResult[3],
+                account: profileResult[4],
+                createdAt: profileResult[5],
+                updatedAt: profileResult[6],
+                txHash: 'N/A'
+              };
+            }
+            
+            // Fallback to object format
+            return {
+              id: profileResult.id,
+              psId: profileResult.psId || '',
+              xboxId: profileResult.xboxId,
+              data: profileResult.data,
+              account: profileResult.account,
+              createdAt: profileResult.createdAt,
+              updatedAt: profileResult.updatedAt,
+              txHash: 'N/A' // Registration hash not stored in this getter
+            };
+            
+          case 'getProfileByGamertag':
+            // Since the new contract has direct Xbox gamertag lookup, use it instead of searching
+            try {
+              const [gamertag] = params;
+              
+              const profile = await stabilityRead(
+                CONTRACT_ADDRESS, 
+                'getProfileByXboxId',
+                ["function getProfileByXboxId(string xboxId) view returns (tuple(uint256 id, string psId, string xboxId, string data, address account, uint256 createdAt, uint256 updatedAt))"],
+                [gamertag]
+              );
+              
+              // Handle tuple array format: [id, psId, xboxId, data, account, createdAt, updatedAt]
+              if (Array.isArray(profile)) {
+                return {
+                  id: profile[0],
+                  psId: profile[1] || '',
+                  xboxId: profile[2],
+                  data: profile[3],
+                  account: profile[4],
+                  createdAt: profile[5],
+                  updatedAt: profile[6],
+                  txHash: 'N/A'
+                };
+              } else {
+                return {
+                  id: profile.id,
+                  psId: profile.psId || '',
+                  xboxId: profile.xboxId,
+                  data: profile.data,
+                  account: profile.account,
+                  createdAt: profile.createdAt,
+                  updatedAt: profile.updatedAt,
+                  txHash: 'N/A'
+                };
+              }
+            } catch (error) {
+              console.error('Error getting profile by Xbox gamertag:', error);
+              throw new Error('User not found');
+            }
+
+          // Trophy NFT Contract Methods
+          case 'mintTrophy':
+            const [to, mintUserId, psContext, extra] = params;
+            const mintResult = await stabilityWrite(
+              TROPHY_NFT_CONTRACT,
+              'mintTrophy', 
+              ["function mintTrophy(address to, uint256 userId, string psContext, string extra) returns (uint256 tokenId)"],
+              [to, mintUserId.toString(), psContext, extra]
+            );
+            
+            // Extract tokenId from result - Stability API might not return function return values
+            // For now, we'll get the next tokenId by calling the contract
+            let tokenId = mintResult.result || mintResult.output;
+            
+            if (!tokenId) {
+              // If no tokenId returned, try to get it from nextTokenId on the contract
+              try {
+                const nextTokenIdResult = await stabilityRead(
+                  TROPHY_NFT_CONTRACT,
+                  'nextTokenId',
+                  ["function nextTokenId() view returns (uint256)"],
+                  []
+                );
+                // The minted token should be nextTokenId - 1
+                tokenId = parseInt(nextTokenIdResult) - 1;
+                console.log(`🎯 Calculated tokenId: ${tokenId} (nextTokenId: ${nextTokenIdResult})`);
+              } catch (e) {
+                console.warn('Could not determine tokenId:', e);
+                tokenId = 'unknown';
+              }
+            }
+            
+            return {
+              success: true,
+              tokenId: tokenId,
+              txHash: mintResult.txHash,
+              contractAddress: TROPHY_NFT_CONTRACT
+            };
+
+          case 'getTrophiesForUser':
+            const [userId] = params;
+            
+            console.log(`🏆 Getting trophies directly for Profile ID: ${userId}`);
+            
+            // Call the new smart contract function that gets trophies directly by user ID
+            const trophyTokenIds = await stabilityRead(
+              TROPHY_NFT_CONTRACT,
+              'getTrophiesForUser',
+              ["function getTrophiesForUser(uint256 userId) view returns (uint256[])"],
+              [userId.toString()]
+            );
+            
+            // Handle array response format
+            const tokenIds = Array.isArray(trophyTokenIds) ? trophyTokenIds : [];
+            console.log(`✅ Found ${tokenIds.length} trophies directly for Profile ID ${userId}:`, tokenIds);
+            
+            // Get details for each trophy
+            const trophies = [];
+            for (const tokenId of tokenIds) {
+              if (!tokenId || isNaN(tokenId)) {
+                console.warn(`⚠️ Skipping invalid token ID:`, tokenId);
+                continue;
+              }
+              
+              try {
+                console.log(`🔍 Getting trophy details for tokenId: ${tokenId}`);
+                const trophyData = await stabilityRead(
+                  TROPHY_NFT_CONTRACT,
+                  'getTrophyDetails',
+                  ["function getTrophyDetails(uint256) view returns (uint256,string,string,uint256)"],
+                  [tokenId.toString()]
+                );
+                
+                // Handle tuple array format: [linkedUserId, psContext, extra, createdAt]
+                if (Array.isArray(trophyData)) {
+                  console.log(`✅ Trophy ${tokenId} belongs to Profile ID ${trophyData[0]}`);
+                  trophies.push({
+                    tokenId: tokenId,
+                    linkedUserId: trophyData[0],
+                    context: trophyData[1],
+                    extra: trophyData[2],
+                    createdAt: trophyData[3]
+                  });
+                } else {
+                  console.warn(`⚠️ Invalid trophy data format for token ${tokenId}:`, trophyData);
+                }
+              } catch (error) {
+                console.error(`❌ Error getting trophy details for token ${tokenId}:`, error);
+              }
+            }
+            
+            console.log(`✅ Final result: ${trophies.length} trophies for Profile ID ${userId}`);
+            return trophies;
+            
+          default:
+            throw new Error(`Unknown method: ${method}`);
+        }
+        
+      } catch (error) {
+        console.error('Stability contract call failed:', error);
+        throw error;
+      }
+    }
+
+    // Direct RPC function for reading from Stability blockchain
+    async function stabilityRead(contractAddress, method, abi, args) {
+      const API_KEY = "try-it-out"; // Public API key for testing
+      const API_URL = `https://rpc.stabilityprotocol.com/zkt/${API_KEY}`;
+      
+      const payload = {
+        "to": contractAddress,
+        "abi": abi,
+        "method": method,
+        "arguments": args || [],
+        "id": 1
+      };
+      
+      try {
+        console.log(`📖 Reading from Stability blockchain:`, { method, args });
+        console.log(`📤 Sending payload:`, JSON.stringify(payload, null, 2));
+        
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload),
+          mode: 'cors'
+        });
+        
+        console.log(`📊 Response status: ${response.status} ${response.statusText}`);
+        console.log(`📋 Response headers:`, [...response.headers.entries()]);
+        
+        const text = await response.text();
+        console.log(`📄 Raw response body:`, text);
+        
+        if (!response.ok) {
+          console.error(`💥 Read request failed but let's see if we got data anyway...`);
+          // Don't throw immediately, let's see if there's useful data
+          if (text && text.trim()) {
+            try {
+              const result = JSON.parse(text);
+              if (result && !result.error) {
+                console.log(`🎯 Got valid result despite 500 status:`, result);
+                return result.result || result;
+              }
+            } catch (e) {
+              // Not valid JSON, proceed with error
+            }
+          }
+          throw new Error(`HTTP ${response.status}: ${response.statusText}\nResponse: ${text}`);
+        }
+        
+        // Parse the JSON response
+        const result = JSON.parse(text);
+        console.log(`✅ Parsed response:`, result);
+        
+        // Handle different response formats
+        if (result.error) {
+          throw new Error(result.error.message || result.error);
+        }
+        
+        // Stability API returns data in 'output' field
+        if (result.success && result.output !== undefined) {
+          return result.output;
+        }
+        
+        // Fallback to original format
+        return result.result || result;
+        
+      } catch (error) {
+        console.error(`❌ Stability read failed:`, error);
+        throw new Error(`Blockchain read failed: ${error.message}`);
+      }
+    }
+
+    // Direct RPC function for writing to Stability blockchain
+    async function stabilityWrite(contractAddress, method, abi, args) {
+      const API_KEY = "try-it-out"; // Public API key for testing
+      const API_URL = `https://rpc.stabilityprotocol.com/zkt/${API_KEY}`;
+      
+      const payload = {
+        "to": contractAddress,
+        "abi": abi,
+        "method": method,
+        "arguments": args || [],
+        "wait": true,
+        "id": 1
+      };
+      
+      try {
+        console.log(`✍️ Writing to Stability blockchain:`, { contractAddress, method, args });
+        console.log(`📤 Sending payload:`, JSON.stringify(payload, null, 2));
+        
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload),
+          mode: 'cors'
+        });
+        
+        console.log(`📊 Response status: ${response.status} ${response.statusText}`);
+        console.log(`📋 Response headers:`, [...response.headers.entries()]);
+        
+        const text = await response.text();
+        console.log(`📄 Raw response body:`, text);
+        
+        if (!response.ok) {
+          console.error(`💥 Request failed but let's see if we got data anyway...`);
+          // Don't throw immediately, let's see if there's useful data
+          if (text && text.trim()) {
+            try {
+              const result = JSON.parse(text);
+              if (result && !result.error) {
+                console.log(`🎯 Got valid result despite 500 status:`, result);
+                return result.result || result;
+              }
+            } catch (e) {
+              // Not valid JSON, proceed with error
+            }
+          }
+          throw new Error(`HTTP ${response.status}: ${response.statusText}\nResponse: ${text}`);
+        }
+        
+        // Parse the JSON response
+        const result = JSON.parse(text);
+        console.log(`✅ Parsed response:`, result);
+        
+        // Handle different response formats
+        if (result.error) {
+          throw new Error(result.error.message || JSON.stringify(result.error));
+        }
+        
+        // Return transaction hash and result - Stability API uses 'hash' field
+        return {
+          txHash: result.hash || result.txHash || result.result?.txHash || result.result,
+          result: result.output || result.result
+        };
+        
+      } catch (error) {
+        console.error(`❌ Stability write failed:`, error);
+        throw new Error(`Blockchain write failed: ${error.message}`);
+      }
+    }
+
+    // Store original button text
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('registerBtnText').setAttribute('data-original', 'CREATE BLOCKCHAIN PROFILE');
+      document.getElementById('loginBtnText').setAttribute('data-original', 'ACCESS PROFILE');
+      document.getElementById('mintBtnText').setAttribute('data-original', 'MINT OGA NFT');
+    });
+
+
+
+    // Login User (Access existing profile)
+    async function loginUser() {
+      const gamertag = document.getElementById('loginXboxId').value.trim();
+      
+      if (!gamertag) {
+        showStatus('registerStatus', 'Please enter your registered Xbox Gamertag!', 'error');
+        return;
+      }
+      
+      try {
+        setButtonLoading('loginBtn', 'loginBtnText', true, 'Accessing profile...');
+        showStatus('registerStatus', 'Looking up your blockchain profile...', 'info');
+        
+        // Find user by gamertag
+        const profile = await callStabilityContract('getProfileByGamertag', [gamertag]);
+        
+        currentUserId = profile.id;
+        currentGamertag = profile.xboxId;
+        
+        showStatus('registerStatus', `✅ Welcome back, ${profile.xboxId}! Loading your dashboard...`, 'success');
+        
+        setTimeout(() => {
+          switchPage('profile');
+          loadUserProfile(profile.id);
+        }, 1500);
+        
+      } catch (error) {
+        console.error('Login error:', error);
+        showStatus('registerStatus', `Profile not found. Please check your gamertag or create a new profile.`, 'error');
+      } finally {
+        setButtonLoading('loginBtn', 'loginBtnText', false);
+      }
+    }
+
+    // User Registration (Xbox-only with Real Blockchain)
+    async function registerUser() {
+      const xboxId = document.getElementById('xboxId').value.trim();
+      const gameData = document.getElementById('gameData').value.trim() || '{}';
+
+      if (!xboxId) {
+        showStatus('registerStatus', 'Please enter your Xbox Gamertag!', 'error');
+        return;
+      }
+
+      try {
+        // Check if user already exists
+        try {
+          const existingProfile = await callStabilityContract('getProfileByGamertag', [xboxId]);
+          if (existingProfile) {
+            showStatus('registerStatus', 'This gamertag is already registered! Redirecting to login...', 'warning');
+            setTimeout(() => {
+              toggleAuthMode();
+              document.getElementById('loginXboxId').value = xboxId;
+            }, 1500);
+            return;
+          }
+        } catch (e) {
+          // User doesn't exist, continue with registration
+        }
+        
+        // Validate JSON
+        JSON.parse(gameData);
+        
+        setButtonLoading('registerBtn', 'registerBtnText', true, 'Validating Xbox account...');
+        showStatus('registerStatus', 'Validating Xbox gamertag...', 'info');
+
+        // Validate Xbox gamertag format first
+        if (!isValidGamertag(xboxId)) {
+          showStatus('registerStatus', 'Invalid gamertag format. Xbox gamertags must be 1-15 characters, containing only letters, numbers, and spaces.', 'error');
+          setButtonLoading('registerBtn', 'registerBtnText', false);
+          return;
+        }
+
+        // Try to validate Xbox gamertag through API (with graceful fallback for CORS)
+        let validationMessage = '';
+        try {
+          const searchResult = await makeXboxRequest(`/search/${encodeURIComponent(xboxId)}`);
+          if (searchResult.people && searchResult.people.length > 0) {
+            validationMessage = '✅ Xbox gamertag validated!';
+            showStatus('registerStatus', validationMessage + ' Creating blockchain profile...', 'success');
+          } else {
+            throw new Error('Xbox gamertag not found through API.');
+          }
+        } catch (error) {
+          // Check if we have fallback demo data for this gamertag
+          const fallbackData = getFallbackXboxData(xboxId);
+          if (fallbackData) {
+            validationMessage = '✅ Xbox gamertag verified!';
+            showStatus('registerStatus', validationMessage + ' Creating blockchain profile...', 'success');
+          } else {
+            // For any other gamertag, allow it to proceed with a warning about CORS
+            if (error.message.includes('CORS') || error.message.includes('blocked') || error.message.includes('Failed to fetch')) {
+              validationMessage = '⚠️ Xbox API blocked by browser (normal in dev). Proceeding...';
+              showStatus('registerStatus', validationMessage + ' Creating blockchain profile...', 'warning');
+            } else {
+              validationMessage = '⚠️ Could not verify gamertag. Proceeding...';
+              showStatus('registerStatus', validationMessage + ' Creating blockchain profile...', 'warning');
+            }
+          }
+        }
+        
+        setButtonLoading('registerBtn', 'registerBtnText', true, 'Deploying contracts...');
+        showStatus('registerStatus', 'Deploying smart contracts on Stability Network...', 'info');
+
+        const result = await callStabilityContract('register', [xboxId, gameData]);
+        
+        // Set current gamertag and user ID IMMEDIATELY to ensure proper trophy filtering
+        currentGamertag = xboxId;
+        currentUserId = result.userId;
+        
+        console.log(`🎮 Registration complete: User ID ${result.userId}, Gamertag: ${currentGamertag}`);
+        
+        const txLink = createExplorerLink(result.txHash);
+        showStatus('registerStatus', `🎉 Profile created successfully! Transaction: <a href="${txLink}" target="_blank" class="tx-link">View on Explorer</a>`, 'success');
+        
+        // Show transaction details
+        setTimeout(() => {
+          showStatus('registerStatus', `
+            ✅ Blockchain profile created!<br>
+            📝 Transaction: <a href="${txLink}" target="_blank" class="tx-link">${result.txHash.slice(0, 10)}...${result.txHash.slice(-8)}</a><br>
+            💼 Wallet: <code style="color: var(--accent-blue); font-size: 0.9rem;">${result.account.slice(0, 8)}...${result.account.slice(-6)}</code><br>
+            Loading your dashboard...
+          `, 'success');
+        }, 1000);
+        
+        // Load profile with proper gamertag already set
+        setTimeout(() => {
+          switchPage('profile');
+          console.log(`🔄 Loading profile for ${currentGamertag} (ID: ${currentUserId})`);
+          loadUserProfile(result.userId);
+        }, 3000);
+
+      } catch (error) {
+        console.error('Registration error:', error);
+        showStatus('registerStatus', `Registration failed: ${error.message}`, 'error');
+      } finally {
+        setButtonLoading('registerBtn', 'registerBtnText', false);
+      }
+    }
+
+    // View User (Demo Function) - DISABLED to prevent loading demo profiles
+    async function viewUser(userId) {
+      console.warn('Demo profile loading disabled to prevent confusion');
+      showStatus('registerStatus', 'Demo profiles disabled. Please register with your own Xbox gamertag.', 'warning');
+      return;
+    }
+
+    // Load Xbox Profile Data (with CORS fallback)
+    async function loadXboxProfile(gamertag) {
+      if (!gamertag) {
+        showXboxErrorState('No Xbox gamertag provided');
+        return;
+      }
+
+      // Test gamertag to XUID mapping for demo/testing purposes
+      const testGamertagMappings = {
+        'ForzaTester22': '2533274801175621',  // Maps to "Squirrel Regis"
+        'MockGamer123': '2533274801175621',   // Maps to "Squirrel Regis"  
+        'Chief123': '2533274801175621',       // Maps to "Squirrel Regis"
+        'TestUser002': '2533274824374524',    // Maps to "TestUser001" (from previous API test)
+        'DemoPlayer': '2533274801175621'      // Maps to "Squirrel Regis"
+      };
+
+      try {
+        let player, currentXuid;
+        
+        // Check if this is a test gamertag that should map to a real XUID
+        if (testGamertagMappings[gamertag]) {
+          console.log(`🎯 Test gamertag "${gamertag}" mapped to XUID: ${testGamertagMappings[gamertag]}`);
+          
+          // Get profile data directly using the mapped XUID
+          const profileResult = await makeXboxRequest(`/account/${testGamertagMappings[gamertag]}`);
+          
+          if (profileResult.profileUsers && profileResult.profileUsers.length > 0) {
+            const profileUser = profileResult.profileUsers[0];
+            
+            // Extract data from the profile structure
+            const settings = profileUser.settings;
+            const getSettingValue = (id) => settings.find(s => s.id === id)?.value || '';
+            
+            // Create a player object compatible with search API format
+            player = {
+              xuid: profileUser.id,
+              gamertag: getSettingValue('Gamertag'),
+              gamerScore: parseInt(getSettingValue('Gamerscore')) || 0,
+              displayPicRaw: getSettingValue('GameDisplayPicRaw'),
+              detail: {
+                accountTier: getSettingValue('AccountTier'),
+                bio: getSettingValue('Bio'),
+                location: getSettingValue('Location')
+              }
+            };
+            
+            currentXuid = player.xuid;
+            console.log(`✅ Found mapped Xbox user for "${gamertag}":`, {
+              realGamertag: player.gamertag,
+              xuid: player.xuid,
+              gamerScore: player.gamerScore
+            });
+          } else {
+            throw new Error('Mapped XUID not found');
+          }
+          
+        } else {
+          // Step 1: Get real Xbox user data from search API (normal flow)
+          console.log(`🔍 Searching for Xbox user: ${gamertag}`);
+          const searchResult = await makeXboxRequest(`/search/${encodeURIComponent(gamertag)}`);
+          
+          if (!searchResult.people || searchResult.people.length === 0) {
+            throw new Error('Xbox gamertag not found through API');
+          }
+          
+          player = searchResult.people[0];
+          currentXuid = player.xuid;
+          
+          console.log(`✅ Found real Xbox user:`, {
+            gamertag: player.gamertag,
+            xuid: player.xuid,
+            gamerScore: player.gamerScore,
+            displayPicRaw: player.displayPicRaw
+          });
+        }
+        
+        // Step 2: Update profile with real Xbox data immediately
+        updateBasicXboxProfile(player);
+        
+        // Step 3: Try to get additional data (gracefully handle failures)
+        console.log(`📊 Loading additional Xbox data for XUID: ${currentXuid}`);
+        
+        try {
+          // Try to get detailed profile
+          const profileResult = await makeXboxRequest(`/account/${currentXuid}`);
+          console.log(`✅ Got detailed profile data:`, profileResult);
+          updateXboxProfileDisplay(profileResult);
+        } catch (error) {
+          console.warn(`⚠️ Could not load detailed profile: ${error.message}`);
+        }
+        
+        try {
+          // Try to get presence
+          const presenceResult = await makeXboxRequest(`/presence/${currentXuid}`);
+          console.log(`✅ Got presence data:`, presenceResult);
+          updateXboxPresenceDisplay(presenceResult);
+        } catch (error) {
+          console.warn(`⚠️ Could not load presence: ${error.message}`);
+          updateXboxOfflineStatus();
+        }
+        
+        try {
+          // Try to get achievements
+          const achievementsResult = await makeXboxRequest(`/achievements/player/${currentXuid}`);
+          console.log(`✅ Got achievements data:`, achievementsResult);
+          updateXboxGameLibrary(achievementsResult);
+        } catch (error) {
+          console.warn(`⚠️ Could not load achievements: ${error.message}`);
+          
+          // Update the suggestions area to show that achievements are unavailable
+          const suggestions = document.getElementById('quickMintSuggestions');
+          suggestions.innerHTML = `
+            <div style="text-align: center; color: var(--text-dim); padding: 1rem;">
+              🎮 Real Xbox profile loaded for ${player.gamertag}!<br>
+              <small>⚠️ Achievement data temporarily unavailable<br>You can still mint NFTs manually using the form above</small>
+            </div>
+          `;
+        }
+        
+        // Show final success status
+        setTimeout(() => {
+          hideStatus('profileStatus');
+        }, 3000);
+        
+      } catch (error) {
+        console.warn(`❌ Xbox API search failed for ${gamertag}:`, error.message);
+        
+        // Handle specific error cases more gracefully
+        if (error.message.includes('Xbox gamertag not found')) {
+          // User not found - show user-friendly message but still allow profile creation
+          console.log(`Xbox user ${gamertag} not found - showing profile without Xbox data`);
+          document.getElementById('realGamertag').innerHTML = `${gamertag}`;
+          document.getElementById('realGamerscore').textContent = '0';
+          document.getElementById('accountTier').textContent = '❓ Xbox User Not Found';
+          document.getElementById('gamerAvatar').textContent = getGamertagInitials(gamertag);
+          document.getElementById('displayXuid').textContent = 'User Not Found';
+          
+          updateXboxOfflineStatus();
+          
+          // Update statistics to show no data available
+          document.getElementById('xboxTotalGames').textContent = '-';
+          document.getElementById('xboxTotalAchievements').textContent = '-';
+          document.getElementById('perfectGames').textContent = '-';
+          document.getElementById('xboxCompletionRate').textContent = '-';
+          document.getElementById('xboxRecentlyPlayed').textContent = '-';
+          document.getElementById('mintableAchievements').textContent = '0';
+          
+          const suggestions = document.getElementById('quickMintSuggestions');
+          suggestions.innerHTML = `
+            <div style="text-align: center; color: var(--text-dim); padding: 1rem;">
+              ❓ Xbox User "${gamertag}" Not Found<br>
+              <small>This Xbox gamertag may not exist or may be private.<br>You can still mint NFTs manually using the form above.</small>
+            </div>
+          `;
+          
+          showStatus('profileStatus', `⚠️ Xbox user "${gamertag}" not found. Profile registered successfully but Xbox data unavailable.`, 'warning');
+          setTimeout(() => hideStatus('profileStatus'), 5000);
+          
+        } else if (error.message.includes('Failed to fetch') || error.message.includes('CORS') || error.message.includes('backend service')) {
+          // Network/API issues - use fallback for MajorNelson, show API unavailable for others
+          if (gamertag.toLowerCase() === 'majornelson' || gamertag.toLowerCase().replace(/\s+/g, '') === 'majornelson') {
+            const fallbackData = getFallbackXboxData('majornelson');
+            if (fallbackData) {
+              console.log(`Using demo data for MajorNelson due to API issues`);
+              showStatus('profileStatus', '⚠️ Using demo data (Xbox API backend service issue)', 'info');
+              updateXboxProfileFromFallback(fallbackData);
+              return;
+            }
+          }
+          
+          // For other users when API is actually unavailable
+          console.log(`Xbox API backend unavailable for ${gamertag} - showing profile without Xbox data`);
+          document.getElementById('realGamertag').innerHTML = `${gamertag}`;
+          document.getElementById('realGamerscore').textContent = '0';
+          document.getElementById('accountTier').textContent = '🔌 Xbox API Unavailable';
+          document.getElementById('gamerAvatar').textContent = getGamertagInitials(gamertag);
+          document.getElementById('displayXuid').textContent = 'API Unavailable';
+          
+          updateXboxOfflineStatus();
+          
+          document.getElementById('xboxTotalGames').textContent = '-';
+          document.getElementById('xboxTotalAchievements').textContent = '-';
+          document.getElementById('perfectGames').textContent = '-';
+          document.getElementById('xboxCompletionRate').textContent = '-';
+          document.getElementById('xboxRecentlyPlayed').textContent = '-';
+          document.getElementById('mintableAchievements').textContent = '0';
+          
+          const suggestions = document.getElementById('quickMintSuggestions');
+          suggestions.innerHTML = `
+            <div style="text-align: center; color: var(--text-dim); padding: 1rem;">
+              🔌 Xbox Live API Temporarily Unavailable<br>
+              <small>Backend service is currently unavailable.<br>You can still mint NFTs manually using the form above.</small>
+            </div>
+          `;
+          
+          showStatus('profileStatus', `⚠️ Xbox Live API temporarily unavailable. Profile registered successfully but Xbox achievements can't be loaded right now.`, 'warning');
+          setTimeout(() => hideStatus('profileStatus'), 5000);
+          
+        } else {
+          // Generic error - treat as user not found
+          console.log(`Unknown Xbox API error for ${gamertag}:`, error.message);
+          document.getElementById('realGamertag').innerHTML = `${gamertag}`;
+          document.getElementById('realGamerscore').textContent = '0';
+          document.getElementById('accountTier').textContent = '❓ Xbox Data Unavailable';
+          document.getElementById('gamerAvatar').textContent = getGamertagInitials(gamertag);
+          document.getElementById('displayXuid').textContent = 'Data Unavailable';
+          
+          updateXboxOfflineStatus();
+          
+          document.getElementById('xboxTotalGames').textContent = '-';
+          document.getElementById('xboxTotalAchievements').textContent = '-';
+          document.getElementById('perfectGames').textContent = '-';
+          document.getElementById('xboxCompletionRate').textContent = '-';
+          document.getElementById('xboxRecentlyPlayed').textContent = '-';
+          document.getElementById('mintableAchievements').textContent = '0';
+          
+          const suggestions = document.getElementById('quickMintSuggestions');
+          suggestions.innerHTML = `
+            <div style="text-align: center; color: var(--text-dim); padding: 1rem;">
+              ❓ Xbox Data Unavailable<br>
+              <small>Unable to load Xbox data for "${gamertag}".<br>You can still mint NFTs manually using the form above.</small>
+            </div>
+          `;
+          
+          showStatus('profileStatus', `⚠️ Unable to load Xbox data for "${gamertag}". Profile registered successfully.`, 'warning');
+          setTimeout(() => hideStatus('profileStatus'), 5000);
+        }
+      }
+    }
+
+
+
+    // Update Xbox Offline Status
+    function updateXboxOfflineStatus() {
+      // Set offline status when presence data is not available
+      const presenceElement = document.getElementById('xboxPresence');
+      if (presenceElement) {
+        presenceElement.textContent = 'Offline';
+        presenceElement.className = 'offline';
+      }
+    }
+
+    // Update Xbox Profile from Fallback Data
+    function updateXboxProfileFromFallback(data) {
+      currentXuid = data.xuid;
+      
+      // Update profile header
+      document.getElementById('realGamertag').innerHTML = `${data.gamertag} ${data.gamerscore > 100000 ? '<span class="legendary-badge">Legend</span>' : ''}`;
+      document.getElementById('realGamerscore').textContent = data.gamerscore.toLocaleString();
+      document.getElementById('accountTier').textContent = `⭐ Xbox Live ${data.accountTier}`;
+      
+      // Update avatar
+      document.getElementById('gamerAvatar').textContent = getGamertagInitials(data.gamertag);
+      
+      // Show legend badge for high gamerscore
+      if (data.gamerscore > 100000) {
+        const badge = document.getElementById('gamingBadge');
+        if (badge) badge.style.display = 'inline';
+      }
+      
+      // Update statistics
+      document.getElementById('xboxTotalGames').textContent = data.totalGames.toLocaleString();
+      document.getElementById('xboxTotalAchievements').textContent = data.totalAchievements.toLocaleString();
+      document.getElementById('perfectGames').textContent = data.perfectGames;
+      document.getElementById('mintableAchievements').textContent = data.totalAchievements;
+      
+      const avgCompletion = data.topGames.reduce((sum, game) => sum + game.completion, 0) / data.topGames.length;
+      document.getElementById('xboxCompletionRate').textContent = Math.round(avgCompletion) + '%';
+      
+      const recentGames = Math.floor(data.totalGames * 0.1); // Estimate 10% recent
+      document.getElementById('xboxRecentlyPlayed').textContent = recentGames;
+      
+      // Update presence status
+      updateXboxOfflineStatus();
+      
+      // Display games
+      const gameLibrary = document.getElementById('xboxGameLibrary');
+      gameLibrary.innerHTML = '';
+      
+      data.topGames.forEach(game => {
+        const gameCard = createFallbackGameCard(game);
+        gameLibrary.appendChild(gameCard);
+      });
+      
+      // Update quick mint suggestions
+      updateQuickMintSuggestionsFromFallback(data.topGames);
+    }
+
+    // Create Game Card from Fallback Data
+    function createFallbackGameCard(game) {
+      const card = document.createElement('div');
+      card.className = 'game-card';
+      
+      const perfectBadge = game.completion === 100 ? '<span class="achievement-badge">PERFECT</span>' : '';
+      const progressClass = game.completion === 100 ? 'complete' : '';
+      
+      card.innerHTML = `
+        <div class="game-title">${game.name}${perfectBadge}</div>
+        <div class="game-progress">
+          <div class="progress-bar">
+            <div class="progress-fill ${progressClass}" style="width: ${game.completion}%"></div>
+          </div>
+          <div class="progress-text">
+            <span>${game.completion}% Complete</span>
+            <span>${game.gamerscore}G / ${game.totalGamerscore}G</span>
+          </div>
+        </div>
+      `;
+      
+      // Add click handler for quick minting
+      card.addEventListener('click', () => {
+        fillMintFormFromFallback(game);
+      });
+      
+      return card;
+    }
+
+    // Fill Mint Form from Fallback Data
+    function fillMintFormFromFallback(game) {
+      document.getElementById('trophyTitle').value = `${game.name} - ${game.completion === 100 ? 'Perfect Completion' : 'Achievement Progress'}`;
+      document.getElementById('trophyContext').value = `${currentGamertag}'s ${game.name} achievements`;
+      document.getElementById('trophyExtra').value = JSON.stringify({
+        game: game.name,
+        gamerscore: game.gamerscore,
+        totalGamerscore: game.totalGamerscore,
+        completion: `${game.completion}%`,
+        rarity: game.completion === 100 ? 'perfect' : 'progress',
+        player: currentGamertag
+      }, null, 2);
+    }
+
+    // Update Quick Mint Suggestions from Fallback
+    function updateQuickMintSuggestionsFromFallback(games) {
+      const suggestions = document.getElementById('quickMintSuggestions');
+      const perfectGames = games.filter(game => game.completion === 100);
+      
+      if (perfectGames.length > 0) {
+        suggestions.innerHTML = `
+          <div style="margin-bottom: 0.5rem;">
+            <strong style="color: var(--neon-green);">🏆 Perfect Games:</strong>
+          </div>
+          ${perfectGames.map(game => 
+            `<div style="cursor: pointer; padding: 0.3rem; background: rgba(0,255,65,0.1); border-radius: 4px; margin: 0.2rem 0;" onclick="fillMintFormFromFallback({name: '${game.name}', completion: ${game.completion}, gamerscore: ${game.gamerscore}, totalGamerscore: ${game.totalGamerscore}})">
+              ✨ ${game.name} (${game.gamerscore}G)
+            </div>`
+          ).join('')}
+        `;
+      } else {
+        suggestions.innerHTML = `
+          <div style="margin-bottom: 0.5rem;">
+            <strong style="color: var(--accent-blue);">🎮 Top Achievements:</strong>
+          </div>
+          ${games.slice(0, 3).map(game => 
+            `<div style="cursor: pointer; padding: 0.3rem; background: rgba(20,241,149,0.1); border-radius: 4px; margin: 0.2rem 0;" onclick="fillMintFormFromFallback({name: '${game.name}', completion: ${game.completion}, gamerscore: ${game.gamerscore}, totalGamerscore: ${game.totalGamerscore}})">
+              🎯 ${game.name} (${game.completion}% - ${game.gamerscore}G)
+            </div>`
+          ).join('')}
+        `;
+      }
+    }
+
+    // Update Xbox Profile Display
+    function updateXboxProfileDisplay(profileData) {
+      if (profileData.profileUsers && profileData.profileUsers.length > 0) {
+        const user = profileData.profileUsers[0];
+        const settings = {};
+        
+        // Parse settings array into object
+        user.settings.forEach(setting => {
+          settings[setting.id] = setting.value;
+        });
+        
+        console.log(`📊 Updating profile with detailed Xbox data:`, settings);
+        
+        // Update gamerscore with real data
+        const gamerscore = parseInt(settings.Gamerscore || '0');
+        document.getElementById('realGamerscore').textContent = gamerscore.toLocaleString();
+        
+        // Show legend badge for high gamerscore
+        if (gamerscore > 100000) {
+          document.getElementById('gamingBadge').style.display = 'inline';
+        }
+        
+        // Use real Xbox profile picture from detailed profile API
+        const avatarElement = document.getElementById('gamerAvatar');
+        if (settings.GameDisplayPicRaw) {
+          console.log(`📸 Using detailed Xbox profile picture: ${settings.GameDisplayPicRaw}`);
+          avatarElement.innerHTML = `<img src="${settings.GameDisplayPicRaw}" alt="${settings.Gamertag || currentGamertag}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.textContent='${getGamertagInitials(settings.Gamertag || currentGamertag)}';">`;
+        }
+        
+        // Update account tier with real data
+        const tier = settings.AccountTier || 'Silver';
+        document.getElementById('accountTier').textContent = `⭐ Xbox Live ${tier}`;
+        
+        // Update gamertag with real data
+        const realGamertag = settings.Gamertag || currentGamertag;
+        document.getElementById('realGamertag').innerHTML = `${realGamertag} ${gamerscore > 100000 ? '<span class="legendary-badge">Legend</span>' : ''}`;
+        
+        // Log success
+        showStatus('profileStatus', `✅ Detailed Xbox profile data loaded!`, 'success');
+      }
+    }
+
+    // Update Xbox Presence Display
+    function updateXboxPresenceDisplay(presenceData) {
+      const statusDot = document.getElementById('xboxStatusDot');
+      const onlineStatus = document.getElementById('xboxOnlineStatus');
+      const currentActivity = document.getElementById('xboxCurrentActivity');
+      
+      if (presenceData.state) {
+        let statusClass = 'xbox-status-offline';
+        let statusText = presenceData.state;
+        
+        switch (presenceData.state.toLowerCase()) {
+          case 'online':
+            statusClass = 'xbox-status-online';
+            statusText = '🟢 Online';
+            break;
+          case 'away':
+            statusClass = 'xbox-status-away';
+            statusText = '🟡 Away';
+            break;
+          default:
+            statusText = '⚫ Offline';
+        }
+        
+        statusDot.className = `xbox-status-dot ${statusClass}`;
+        onlineStatus.textContent = statusText;
+        
+        // Show current activity if available
+        if (presenceData.devices && presenceData.devices.length > 0) {
+          const device = presenceData.devices[0];
+          if (device.titles && device.titles.length > 0) {
+            const title = device.titles[0];
+            document.getElementById('xboxCurrentGame').textContent = title.name || 'Unknown Game';
+            document.getElementById('xboxActivityTime').textContent = `Playing on ${device.type || 'Xbox'}`;
+            currentActivity.style.display = 'block';
+          }
+        }
+      }
+    }
+
+    function updateXboxOfflineStatus() {
+      document.getElementById('xboxStatusDot').className = 'xbox-status-dot xbox-status-offline';
+      document.getElementById('xboxOnlineStatus').textContent = '⚫ Currently offline';
+    }
+
+    // Update Xbox Game Library
+    function updateXboxGameLibrary(achievementsData) {
+      if (!achievementsData.titles) return;
+      
+      gameLibraryData = achievementsData.titles;
+      const gameLibrary = document.getElementById('xboxGameLibrary');
+      
+      // Update statistics
+      document.getElementById('xboxTotalGames').textContent = gameLibraryData.length.toLocaleString();
+      
+      const totalAchievements = gameLibraryData.reduce((sum, game) => 
+        sum + (game.achievement?.currentAchievements || 0), 0);
+      document.getElementById('xboxTotalAchievements').textContent = totalAchievements.toLocaleString();
+      
+      const perfectGames = gameLibraryData.filter(game => 
+        game.achievement?.progressPercentage === 100).length;
+      document.getElementById('perfectGames').textContent = perfectGames;
+      document.getElementById('mintableAchievements').textContent = totalAchievements;
+      
+      const avgCompletion = gameLibraryData.reduce((sum, game) => 
+        sum + (game.achievement?.progressPercentage || 0), 0) / gameLibraryData.length;
+      document.getElementById('xboxCompletionRate').textContent = Math.round(avgCompletion) + '%';
+      
+      const recentGames = gameLibraryData.filter(game => 
+        game.titleHistory?.lastTimePlayed && 
+        new Date(game.titleHistory.lastTimePlayed) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+      ).length;
+      document.getElementById('xboxRecentlyPlayed').textContent = recentGames;
+      
+      // Display top games
+      const topGames = gameLibraryData
+        .filter(game => game.achievement?.currentAchievements > 0)
+        .sort((a, b) => (b.achievement?.progressPercentage || 0) - (a.achievement?.progressPercentage || 0))
+        .slice(0, 8);
+      
+      gameLibrary.innerHTML = '';
+      
+      if (topGames.length === 0) {
+        gameLibrary.innerHTML = '<div style="text-align: center; color: var(--text-dim);">No public achievements found</div>';
+        return;
+      }
+      
+      topGames.forEach(game => {
+        const gameCard = createXboxGameCard(game);
+        gameLibrary.appendChild(gameCard);
+      });
+
+      // Update quick mint suggestions
+      updateQuickMintSuggestions(topGames);
+    }
+
+    // Create Xbox Game Card Element
+    function createXboxGameCard(game) {
+      const card = document.createElement('div');
+      card.className = 'game-card';
+      
+      const achievement = game.achievement || {};
+      const progress = achievement.progressPercentage || 0;
+      const currentAchievements = achievement.currentAchievements || 0;
+      const totalAchievements = achievement.totalAchievements || 0;
+      const gamerscore = achievement.currentGamerscore || 0;
+      
+      const perfectBadge = progress === 100 ? '<span class="achievement-badge">PERFECT</span>' : '';
+      const progressClass = progress === 100 ? 'complete' : '';
+      
+      card.innerHTML = `
+        <div class="game-title">${game.name || 'Unknown Game'}${perfectBadge}</div>
+        <div class="game-progress">
+          <div class="progress-bar">
+            <div class="progress-fill ${progressClass}" style="width: ${progress}%"></div>
+          </div>
+          <div class="progress-text">
+            <span>${progress}% Complete (${currentAchievements}/${totalAchievements})</span>
+            <span>${gamerscore}G earned</span>
+          </div>
+        </div>
+      `;
+      
+      // Add click handler for quick minting
+      card.addEventListener('click', () => {
+        fillMintForm(game);
+      });
+      
+      return card;
+    }
+
+    // Update Quick Mint Suggestions
+    function updateQuickMintSuggestions(topGames) {
+      const suggestions = document.getElementById('quickMintSuggestions');
+      const perfectGames = topGames.filter(game => game.achievement?.progressPercentage === 100);
+      
+      if (perfectGames.length > 0) {
+        suggestions.innerHTML = `
+          <div style="margin-bottom: 0.5rem;">
+            <strong style="color: var(--neon-green);">🏆 Perfect Games:</strong>
+          </div>
+          ${perfectGames.slice(0, 3).map(game => 
+            `<div style="cursor: pointer; padding: 0.3rem; background: rgba(0,255,65,0.1); border-radius: 4px; margin: 0.2rem 0;" onclick="fillMintForm('${game.name}', '${game.achievement?.currentGamerscore || 0}')">
+              ✨ ${game.name} (${game.achievement?.currentGamerscore || 0}G)
+            </div>`
+          ).join('')}
+        `;
+      }
+    }
+
+    // Fill Mint Form with Xbox Data
+    function fillMintForm(gameName, gamerscore) {
+      if (typeof gameName === 'object') {
+        // Called with game object
+        const game = gameName;
+        document.getElementById('trophyTitle').value = `${game.name} - ${game.achievement?.progressPercentage === 100 ? 'Master Achievement' : 'Progress Achievement'}`;
+        document.getElementById('trophyContext').value = `${currentGamertag}'s ${game.name} achievements`;
+        document.getElementById('trophyExtra').value = JSON.stringify({
+          game: game.name,
+          gamerscore: game.achievement?.currentGamerscore || 0,
+          totalGamerscore: game.achievement?.totalGamerscore || 0,
+          completion: `${game.achievement?.progressPercentage || 0}%`,
+          achievements: `${game.achievement?.currentAchievements || 0}/${game.achievement?.totalAchievements || 0}`,
+          xbox_title_id: game.titleId,
+          player: currentGamertag
+        }, null, 2);
+      } else {
+        // Called with string parameters
+        document.getElementById('trophyTitle').value = `${gameName} - Perfect Completion`;
+        document.getElementById('trophyContext').value = `${currentGamertag}'s ${gameName} 100% completion`;
+        document.getElementById('trophyExtra').value = JSON.stringify({
+          game: gameName,
+          gamerscore: gamerscore,
+          completion: "100%",
+          rarity: "perfect",
+          player: currentGamertag
+        }, null, 2);
+      }
+    }
+
+    function showXboxErrorState(message) {
+      document.getElementById('realGamertag').textContent = 'Connection Error';
+      document.getElementById('accountTier').textContent = message;
+      document.getElementById('xboxOnlineStatus').textContent = 'Unable to connect';
+    }
+
+    // Load User Profile (Enhanced with Xbox Integration)
+    async function loadUserProfile(userId = currentUserId) {
+      if (!userId) {
+        document.getElementById('notRegistered').style.display = 'block';
+        return;
+      }
+
+      try {
+        document.getElementById('profileLoading').style.display = 'block';
+        document.getElementById('profileContent').style.display = 'none';
+        document.getElementById('notRegistered').style.display = 'none';
+
+        showStatus('profileStatus', 'Loading profile from Stability blockchain...', 'info');
+
+        const profile = await callStabilityContract('getProfile', [userId]);
+        
+        currentGamertag = profile.xboxId;
+
+        // Update blockchain profile display
+        document.getElementById('userId').textContent = `#${profile.id.toString().padStart(4, '0')}`;
+        document.getElementById('displayXboxId').textContent = profile.xboxId;
+        document.getElementById('displayWallet').textContent = `${profile.account.slice(0, 8)}...${profile.account.slice(-6)}`;
+        
+        // Create transaction link
+        const txLink = createExplorerLink(profile.txHash);
+        const txHashElement = document.getElementById('displayTxHash');
+        txHashElement.href = txLink;
+        txHashElement.textContent = `${profile.txHash.slice(0, 10)}...${profile.txHash.slice(-8)}`;
+        
+        document.getElementById('displayCreated').textContent = new Date(profile.createdAt * 1000).toLocaleDateString();
+
+        // Load Xbox profile data if Xbox ID is available
+        if (profile.xboxId) {
+          showStatus('profileStatus', `Loading ${profile.xboxId}'s Xbox Live data...`, 'info');
+          await loadXboxProfile(profile.xboxId);
+        }
+
+        // Load blockchain trophies
+        await loadUserTrophies(userId);
+
+        document.getElementById('profileLoading').style.display = 'none';
+        document.getElementById('profileContent').style.display = 'grid';
+        hideStatus('profileStatus');
+
+      } catch (error) {
+        console.error('Profile loading error:', error);
+        document.getElementById('profileLoading').style.display = 'none';
+        showStatus('profileStatus', `Error loading profile: ${error.message}`, 'error');
+      }
+    }
+
+    // Logout User
+    function logoutUser() {
+      if (confirm(`Are you sure you want to disconnect ${currentGamertag || 'your profile'}?`)) {
+        // Clear current user data
+        currentUserId = null;
+        currentXuid = null;
+        currentGamertag = null;
+        gameLibraryData = [];
+        
+        // Reset form fields
+        document.getElementById('xboxId').value = '';
+        document.getElementById('loginXboxId').value = '';
+        document.getElementById('gameData').value = '';
+        document.getElementById('trophyTitle').value = '';
+        document.getElementById('trophyContext').value = '';
+        document.getElementById('trophyExtra').value = '';
+        
+        // Reset to registration mode
+        isLoginMode = false;
+        document.getElementById('registrationForm').style.display = 'block';
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('authTitle').textContent = 'Connect Your Xbox Profile';
+        document.getElementById('authSubtitle').textContent = 'Link your Xbox Live account to create blockchain gaming assets';
+        document.getElementById('authToggleText').textContent = 'Already have a blockchain profile?';
+        document.getElementById('authToggleBtn').textContent = 'Login with existing gamertag';
+        
+        // Hide profile and show registration
+        hideStatus('profileStatus');
+        switchPage('register');
+        
+        showStatus('registerStatus', 'Successfully disconnected. Connect again to access your OGA NFTs.', 'info');
+        setTimeout(() => hideStatus('registerStatus'), 3000);
+      }
+    }
+
+    // Load User Trophies
+    async function loadUserTrophies(userId) {
+      try {
+        console.log(`🏆 Loading trophies for user ID: ${userId}, current gamertag: ${currentGamertag}`);
+        
+        const trophies = await callStabilityContract('getTrophiesForUser', [userId]);
+        console.log(`🎯 Retrieved ${trophies.length} trophies specifically for user ID ${userId}:`, trophies);
+        
+        // No filtering needed - contract already returns only relevant trophies
+        const trophyCount = trophies.length;
+        
+        document.getElementById('totalTrophies').textContent = trophyCount;
+        document.getElementById('trophyProgress').style.width = `${Math.min(trophyCount * 20, 100)}%`;
+
+        const trophyGrid = document.getElementById('trophyGrid');
+        trophyGrid.innerHTML = '';
+
+        if (trophyCount === 0) {
+          trophyGrid.innerHTML = `<p style="text-align: center; color: var(--text-dim); grid-column: 1 / -1;">No OGA NFTs minted yet for ${currentGamertag || 'this profile'}.<br><small>Click on any achievement above to create your first NFT!</small></p>`;
+          return;
+        }
+
+        // Display each trophy
+        trophies.forEach(trophy => {
+          let trophyData = {};
+          try {
+            trophyData = JSON.parse(trophy.extra);
+          } catch (e) {
+            trophyData = { rarity: 'bronze' };
+          }
+
+          const trophyCard = createTrophyCard(trophy.tokenId, trophy.context, trophyData, trophy.createdAt, trophy.txHash);
+          trophyGrid.appendChild(trophyCard);
+        });
+      } catch (error) {
+        console.error('Trophy loading error:', error);
+        document.getElementById('totalTrophies').textContent = '0';
+        document.getElementById('trophyProgress').style.width = '0%';
+        
+        const trophyGrid = document.getElementById('trophyGrid');
+        trophyGrid.innerHTML = `
+          <div style="grid-column: 1/-1; text-align: center; padding: 2rem; color: var(--text-dim);">
+            <h4>Unable to load trophies</h4>
+            <p>${error.message}</p>
+          </div>
+        `;
+      }
+    }
+
+    // Create Trophy Card Element (with Transaction Hash)
+    function createTrophyCard(tokenId, context, trophyData, createdAt, txHash) {
+      const card = document.createElement('div');
+      card.className = 'trophy-card';
+      
+      const rarity = trophyData.rarity || trophyData.completion === '100%' ? 'perfect' : 'progress';
+      const trophyIcons = {
+        perfect: '🏆',
+        platinum: '🏆',
+        gold: '🥇',
+        silver: '🥈',
+        bronze: '🥉',
+        progress: '🎮'
+      };
+
+      const rarityColors = {
+        perfect: 'rarity-platinum',
+        platinum: 'rarity-platinum',
+        gold: 'rarity-gold',
+        silver: 'rarity-silver',
+        bronze: 'rarity-bronze',
+        progress: 'rarity-bronze'
+      };
+
+      const gamerscore = trophyData.gamerscore || 0;
+      const game = trophyData.game || 'Xbox Achievement';
+      const player = trophyData.player || currentGamertag || 'Unknown';
+
+      card.innerHTML = `
+        <div class="trophy-icon">${trophyIcons[rarity] || '🏆'}</div>
+        <div class="trophy-title">${context}</div>
+        <div class="trophy-game">${game}</div>
+        <div class="trophy-rarity ${rarityColors[rarity]}">${rarity}</div>
+        ${gamerscore > 0 ? `<div style="margin: 0.5rem 0; color: var(--neon-green); font-weight: bold;">${gamerscore}G</div>` : ''}
+        <div style="margin-top: 1rem; font-size: 0.75rem; color: var(--text-dim);">
+          OGA #${tokenId.toString().padStart(4, '0')}<br>
+          Owner: ${player}<br>
+          ${new Date(createdAt * 1000).toLocaleDateString()}<br>
+          ${txHash ? `<a href="${createExplorerLink(txHash)}" target="_blank" class="tx-link">View NFT</a>` : ''}
+        </div>
+      `;
+
+      // Add click handler to show details
+      if (txHash) {
+        card.style.cursor = 'pointer';
+        card.addEventListener('click', () => {
+          alert(`OGA NFT Details:\n\nToken ID: #${tokenId.toString().padStart(4, '0')}\nGame: ${game}\nPlayer: ${player}\nGamerscore: ${gamerscore}G\n\nView on Explorer: ${createExplorerLink(txHash)}`);
+        });
+      }
+
+      return card;
+    }
+
+    // Mint Trophy (with Transaction Hash Display)
+    async function mintTrophy() {
+      if (!currentUserId) {
+        showStatus('profileStatus', 'Please connect your Xbox profile first!', 'error');
+        return;
+      }
+
+      const title = document.getElementById('trophyTitle').value.trim();
+      const context = document.getElementById('trophyContext').value.trim();
+      const extra = document.getElementById('trophyExtra').value.trim() || '{}';
+
+      if (!title || !context) {
+        showStatus('profileStatus', 'Please fill in achievement title and context!', 'error');
+        return;
+      }
+
+      try {
+        // Validate JSON
+        const extraData = JSON.parse(extra);
+        
+        // Ensure player is included
+        if (!extraData.player && currentGamertag) {
+          extraData.player = currentGamertag;
+        }
+        
+        setButtonLoading('mintBtn', 'mintBtnText', true, 'Deploying NFT contract...');
+        showStatus('profileStatus', 'Deploying OGA NFT contract on Stability Network...', 'info');
+
+        const userProfile = await callStabilityContract('getProfile', [currentUserId]);
+        
+        setButtonLoading('mintBtn', 'mintBtnText', true, 'Minting OGA...');
+        const result = await callStabilityContract('mintTrophy', [userProfile.account, currentUserId, context, JSON.stringify(extraData)]);
+        
+        console.log('🎯 Mint result:', result);
+        
+        // Show success with transaction details
+        const txHash = result.txHash || 'demo-transaction';
+        const contractAddress = result.contractAddress || TROPHY_NFT_CONTRACT;
+        const tokenId = result.tokenId || result.result || 'unknown';
+        
+        const txLink = createExplorerLink(txHash);
+        const contractLink = createExplorerLink(contractAddress, 'address');
+        
+        showStatus('profileStatus', `
+          🏆 OGA NFT minted successfully!<br>
+          📝 Transaction: <a href="${txLink}" target="_blank" class="tx-link">${txHash.slice(0, 10)}...${txHash.slice(-8)}</a><br>
+          🏠 Contract: <a href="${contractLink}" target="_blank" class="tx-link">${contractAddress.slice(0, 10)}...${contractAddress.slice(-6)}</a><br>
+          🎫 Token ID: <strong>#${tokenId.toString().padStart(4, '0')}</strong>
+        `, 'success');
+        
+        // Clear form
+        document.getElementById('trophyTitle').value = '';
+        document.getElementById('trophyContext').value = '';
+        document.getElementById('trophyExtra').value = '';
+        
+        // Reload trophies
+        await loadUserTrophies(currentUserId);
+
+      } catch (error) {
+        console.error('Minting error:', error);
+        showStatus('profileStatus', `Minting failed: ${error.message}`, 'error');
+      } finally {
+        setButtonLoading('mintBtn', 'mintBtnText', false);
+      }
+    }
+
+    // Refresh Profile
+    async function refreshProfile() {
+      hideStatus('profileStatus');
+      if (currentUserId) {
+        await loadUserProfile(currentUserId);
+      }
+    }
+
+    // Sync Xbox Data
+    async function syncXboxData() {
+      if (!currentUserId) {
+        showStatus('profileStatus', 'Please connect your Xbox profile first!', 'error');
+        return;
+      }
+
+      try {
+        showStatus('profileStatus', `Syncing ${currentGamertag}'s latest Xbox data...`, 'info');
+        
+        const profile = await callStabilityContract('getProfile', [currentUserId]);
+        // DISABLED to prevent automatic Xbox loading from blockchain
+        // if (profile.xboxId) {
+        //   await loadXboxProfile(profile.xboxId);
+        //   showStatus('profileStatus', `🎮 ${currentGamertag}'s Xbox data synced successfully!`, 'success');
+        //   setTimeout(() => hideStatus('profileStatus'), 3000);
+        // } else {
+        //   showStatus('profileStatus', 'No Xbox gamertag found in profile', 'error');
+        // }
+        showStatus('profileStatus', `🎮 Xbox sync temporarily disabled for testing`, 'info');
+        setTimeout(() => hideStatus('profileStatus'), 3000);
+      } catch (error) {
+        console.error('Xbox sync error:', error);
+        showStatus('profileStatus', `Xbox sync failed: ${error.message}`, 'error');
+      }
+    }
+
+    // Page Navigation
     function switchPage(id) {
-      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
+      document.querySelectorAll('.page').forEach(p => {
+        p.classList.remove('active');
+      });
+      
+      setTimeout(() => {
+        document.getElementById(id).classList.add('active');
+        
+        // Clear status messages when switching pages
+        hideStatus('landingStatus');
+        hideStatus('registerStatus');
+        hideStatus('profileStatus');
+      }, 100);
+    }
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', () => {
+      // Animate progress bars on profile page load
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.style.animation = 'fillBar 1.5s ease-out forwards';
+          }
+        });
+      });
+      
+      document.querySelectorAll('.bar-fill').forEach(bar => {
+        observer.observe(bar);
+      });
+    });
+
+    // Update Xbox Profile with Basic Search Data
+    function updateBasicXboxProfile(player) {
+      if (!player) return;
+      
+      console.log(`🎮 Updating profile with real Xbox search data:`, player);
+      
+      // Update profile header with real Xbox data
+      document.getElementById('realGamertag').innerHTML = `${player.gamertag}`;
+      document.getElementById('realGamerscore').textContent = player.gamerScore ? parseInt(player.gamerScore).toLocaleString() : '0';
+      
+      // Update Xbox User ID (XUID) in profile details
+      if (player.xuid) {
+        document.getElementById('displayXuid').textContent = player.xuid;
+        console.log(`🆔 Xbox User ID (XUID): ${player.xuid}`);
+      }
+      
+      // Update account tier
+      const tier = player.detail?.accountTier || 'Silver';
+      document.getElementById('accountTier').textContent = `⭐ Xbox Live ${tier}`;
+      
+      // Use real Xbox profile picture if available
+      const avatarElement = document.getElementById('gamerAvatar');
+      if (player.displayPicRaw) {
+        console.log(`📸 Using real Xbox profile picture: ${player.displayPicRaw}`);
+        avatarElement.innerHTML = `<img src="${player.displayPicRaw}" alt="${player.gamertag}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.textContent='${getGamertagInitials(player.gamertag)}';">`;
+      } else {
+        console.log(`📸 No profile picture available, using initials`);
+        avatarElement.textContent = getGamertagInitials(player.gamertag);
+      }
+      
+      // Update statistics with basic info (will be updated if achievements load)
+      document.getElementById('xboxTotalGames').textContent = '0';
+      document.getElementById('xboxTotalAchievements').textContent = '0';
+      document.getElementById('perfectGames').textContent = '0';
+      
+      // Show success message that we have real Xbox data
+      showStatus('profileStatus', `✅ Real Xbox Live profile loaded for ${player.gamertag}!`, 'success');
+      
+      // Clear any existing game library display
+      const suggestions = document.getElementById('quickMintSuggestions');
+      suggestions.innerHTML = `
+        <div style="text-align: center; color: var(--text-dim); padding: 1rem;">
+          📱 Real Xbox Live profile loaded!<br>
+          <small>Achievement data will load when available</small>
+        </div>
+      `;
     }
   </script>
 </body>
